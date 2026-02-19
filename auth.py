@@ -64,7 +64,7 @@ def add_user():
             return render_template_string("<script>alert('Email already exists');history.back()</script>")
 
         cur.execute(
-            "INSERT INTO users (username, email, pass) VALUES (%s, %s, %s);",
+            "INSERT INTO users (username, email, pass) VALUES (%s, %s, %s) RETURNING uid;",
             (name, email, password)
         )
 
@@ -156,5 +156,6 @@ def change_password():
 
     except Exception:
         return render_template("404.html"), 500
+
 
 
