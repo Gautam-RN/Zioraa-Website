@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, render_template_string, redirect, url_for, session, abort
 from db import get_db
+from dotenv import load_dotenv
+
+load_dotenv()
 
 products = Blueprint("products", __name__)
 
@@ -16,45 +19,49 @@ def alert(msg):
 def get_prod():
     db, cur = get_db()
     if not cur:
-        return render_template("404.html"), 500
+        return []
+
     try:
         cur.execute("SELECT * FROM products ORDER BY sold")
         rows = cur.fetchall()
         if not rows:
-            abort(404)
+            return []
 
         heading = (
-        "pid","prodname","decrp","stock",
-        "price","offer","sold","supplier",
-        "ctgy","collection"
+            "pid","prodname","decrp","stock",
+            "price","offer","sold","supplier",
+            "ctgy","collection"
         )
 
         prods = []
+
         for row in rows:
             prod = dict(zip(heading, row))
             prod["prodname"] = prod["prodname"].title()
 
             cur.execute("SELECT link FROM images WHERE pid=%s", (prod["pid"],))
-            data=cur.fetchall()
-            if data:
-                imgs = data
-            else:
-                imgs = (("black.png",))
-            l=[]
-            for i in imgs:
-                t="images/" + str(i)
-                l.append(t)
-            prod["images"] = l
+            imgs = cur.fetchall() or [("black.png",)]
 
-            cur.execute("Select sum(star),count(*) from review where pid=%s", (prod["pid"],))
-            prod['rating']=0
-            s,n=cur.fetchone()
-            if s is not None and n!=0:
-                prod['rating']=round(s/n)
+            prod["images"] = [f"images/{i[0]}" for i in imgs]
+
+            cur.execute(
+                "SELECT SUM(star), COUNT(*) FROM review WHERE pid=%s",
+                (prod["pid"],)
+            )
+            s, n = cur.fetchone()
+            prod["rating"] = round(s / n) if s and n else 0
+
             prods.append(prod)
+
+        return prods
+
+    except Exception as e:
+        print("get_prod error:", e)
+        return []
+
     finally:
         db.close()
-    return prods
+
 
 
 # ---------- HOME ----------
@@ -64,7 +71,7 @@ def home():
     if data:
         return render_template("home.html", products=data[:3])
     else:
-        return render_template("home.html", products=None)
+        return render_template("home.html")
     
 # ---------- STORE ----------
 @products.route('/store')
