@@ -50,6 +50,8 @@ def register():
 
 @auth.route('/add-user', methods=['POST'])
 def add_user():
+    cur = db.cursor()  # request-scoped cursor
+
     try:
         name = request.form['name']
         email = request.form['email']
@@ -57,24 +59,38 @@ def add_user():
         cpassword = request.form['cpass']
 
         if password != cpassword:
-            return render_template_string("<script>alert('Passwords do not match');history.back()</script>")
+            return render_template_string(
+                "<script>alert('Passwords do not match');history.back()</script>"
+            )
 
         cur.execute("SELECT uid FROM users WHERE email = %s;", (email,))
         if cur.fetchone():
-            return render_template_string("<script>alert('Email already exists');history.back()</script>")
+            return render_template_string(
+                "<script>alert('Email already exists');history.back()</script>"
+            )
 
         cur.execute(
             "INSERT INTO users (username, email, pass) VALUES (%s, %s, %s) RETURNING uid;",
             (name, email, password)
         )
 
-        session['uid'] = cur.fetchone()[0]
+        uid = cur.fetchone()
+        if uid is None:
+            raise Exception("UID not returned after insert")
+
+        session['uid'] = uid[0]
+
         db.commit()
-        
         return redirect(url_for('auth.profile'))
 
-    except Exception:
+    except Exception as e:
+        db.rollback()
+        print(e)  # keep for debugging
         return render_template("404.html"), 500
+
+    finally:
+        cur.close()
+
 
 
 # -------- PROFILE --------
