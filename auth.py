@@ -19,6 +19,7 @@ def login():
 
 @auth.route('/authenticate', methods=['POST'])
 def authenticate():
+    db,cur=get_db()
     try:
         email = request.form['email']
         password = request.form['password']
@@ -30,7 +31,7 @@ def authenticate():
             return render_template_string("<script>alert('Invalid credentials');history.back()</script>")
 
         session['uid'] = user[0]
-        return redirect(url_for('auth.profile'))
+        return render_template_string("<script>history.go(-2)</script>")
 
     except Exception as e:
         return render_template("404.html",e=e), 500
