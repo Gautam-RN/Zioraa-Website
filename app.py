@@ -10,7 +10,8 @@ from payment import payment  # <--- import payment blueprint
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "zioraa_dev_secret_key")
+scrt_app = os.getenv("FLASK_SECRET_KEY")
+app.secret_key = scrt_app
 
 # ---------- REGISTER BLUEPRINTS ----------
 app.register_blueprint(auth)
