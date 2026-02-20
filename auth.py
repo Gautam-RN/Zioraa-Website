@@ -31,7 +31,7 @@ def authenticate():
             return render_template_string("<script>alert('Invalid credentials');history.back()</script>")
 
         session['uid'] = user[0]
-        return render_template_string("<script>history.go(-2)</script>")
+        return render_template_string("<script>history.go(-1)</script>")
 
     except Exception as e:
         return render_template("404.html",e=e), 500
@@ -173,6 +173,7 @@ def change_password():
 
     except Exception:
         return render_template("404.html"), 500
+
 
 
 
