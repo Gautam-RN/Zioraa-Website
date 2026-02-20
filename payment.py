@@ -6,12 +6,15 @@ import os
 import time
 
 load_dotenv()
+app_id=os.getenv("CASHFREE_APP_ID")
+key=os.getenv("CASHFREE_SECRET_KEY")
+ver=os.getenv("CASHFREE_API_VERSION")
 
 # Initialize Cashfree
-Cashfree.XClientId = os.getenv("CASHFREE_APP_ID")
-Cashfree.XClientSecret = os.getenv("CASHFREE_SECRET_KEY")
+Cashfree.XClientId = app_id
+Cashfree.XClientSecret = key
 Cashfree.XEnvironment = Cashfree.SANDBOX
-Cashfree.XApiVersion = os.getenv("CASHFREE_API_VERSION", "2023-08-01") 
+Cashfree.XApiVersion = ver 
 
 payment = Blueprint("payment", __name__)
 
