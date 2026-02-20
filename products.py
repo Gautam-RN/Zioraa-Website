@@ -1,8 +1,5 @@
-from flask import Blueprint, render_template, render_template_string, redirect, url_for, session, abort
+from flask import Blueprint, render_template, render_template_string, redirect, url_for, session, abort, request
 from db import get_db
-from dotenv import load_dotenv
-
-load_dotenv()
 
 products = Blueprint("products", __name__)
 
@@ -22,7 +19,7 @@ def get_prod():
         return []
 
     try:
-        cur.execute("SELECT * FROM products ORDER BY sold")
+        cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products ORDER BY sold")
         rows = cur.fetchall()
         if not rows:
             return []
@@ -94,9 +91,8 @@ def product_detail(pid):
     db, cur = get_db()
     if not cur:
         return render_template("404.html"), 500
-
     try:
-        cur.execute("SELECT * FROM products WHERE pid=%s", (pid,))
+        cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products WHERE pid=%s", (pid,))
         heading = (
         "pid","prodname","decrp","stock",
         "price","offer","sold","supplier",
@@ -119,8 +115,13 @@ def product_detail(pid):
         if s is not None or n!=0:
             prod['rating']=round(s/n)
 
-        if not data:
-            abort(404)
+        cur.execute('Select "user",comment,star from review where pid=%s',(prod["pid"],))
+        data=cur.fetchall()
+        heading=("user","comment","star")
+        l=[]
+        for i in data:
+            l.append(dict(zip(heading,i)))
+        prod['reviews']=l
 
         return render_template("product.html", product=prod)
 
@@ -169,3 +170,25 @@ def add_cart(pid):
     finally:
 
         db.close()
+
+@products.route("/add_review/<int:pid>", methods=["POST"])
+def add_review(pid):
+    if not login_required():
+        return redirect(url_for('auth.login'))
+    conn,cur = get_db()
+    
+    star = request.form.get("star")
+    comment = request.form.get("comment")
+
+    cur.execute("Select username from users where uid=%s",(session['uid'],))
+    username = cur.fetchone()[0]
+    cur.execute(
+        'INSERT INTO review (pid, star, comment, "user") VALUES (%s, %s, %s, %s)',
+        (pid, star, comment, username)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return redirect(url_for("products.product_detail", pid=pid))
