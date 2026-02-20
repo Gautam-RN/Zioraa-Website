@@ -1,12 +1,18 @@
 import psycopg2
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_db():
     try:
-        conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
+        scrt_db = os.getenv("DATABASE_URL")
+
+        conn = psycopg2.connect(scrt_db, sslmode="require")
+        print("DB OK!!")
         return conn, conn.cursor()
-    except:
-        return None,None
 
-
-
+    except Exception as e:
+        print("DB not connected!!")
+        print("Error:", e)
+        return None, None
