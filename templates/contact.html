@@ -179,26 +179,31 @@
       <img src="{{ url_for('static', filename='images/logo.png') }}">
       <h1>Zioraa</h1>
     </div>
-    <nav>
+    <div style="width:33vw"></div>
+    <nav id="navbar">
       <a href="/">Home</a>
       <a href="/store">Store</a>
       <a href="/custom">Customize</a>
       <a href="/contact">Contact</a>
-      <div class="profile-menu">
-        <div class="profile-icon" onclick="toggleProfileMenu()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v1h20v-1c0-3.3-6.7-5-10-5Z" fill="currentColor"/>
-          </svg>
-        </div>
-        <div class="profile-dropdown" id="profileDropdown">
-          <a href="/login">Login</a>
-          <a href="/register">Register</a>
-          <hr>
-          <a href="/profile">My Profile</a>
-          <a href="/logout">Logout</a>
-        </div>
-      </div>
     </nav>
+    <div class="profile-menu">
+      <div class="profile-icon" onclick="toggleProfileMenu()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v1h20v-1c0-3.3-6.7-5-10-5Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <hr>
+        <a href="/profile">My Profile</a>
+        <a href="/logout">Logout</a>
+      </div>
+    </div>
+    <div class="menu-toggle" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span></div>
   </header>
   <section class="contact">
     <h2>We’d Love to Hear From You</h2>
