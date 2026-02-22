@@ -8,3 +8,12 @@ function toggleProfileMenu() {
       document.getElementById("profileDropdown").style.display = "none";
     }
   });
+
+function toggleMenu() {
+    const nav = document.getElementById("navbar");
+    if (nav.style.display === "flex") {
+        nav.style.display = "none";
+    } else {
+        nav.style.display = "flex";
+    }
+}
