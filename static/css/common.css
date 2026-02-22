@@ -128,3 +128,41 @@
       opacity: 0.6;
       border-top: 1px solid var(--border-soft);
     }
+    .menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.menu-toggle span {
+    width: 25px;
+    height: 2px;
+    background: var(--silver);
+    transition: 0.3s;
+}
+@media (max-width: 768px) {
+
+    nav {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        background: #0f0f0f;
+        width: 220px;
+        flex-direction: column;
+        padding: 20px;
+        display: none;
+        border-left: 1px solid var(--border-soft);
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    nav a {
+        margin: 15px 0;
+        display: block;
+    }
+
+    .menu-toggle {
+        display: flex;
+        margin-right: 20px;
+    }
+}
