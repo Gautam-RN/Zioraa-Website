@@ -8,7 +8,13 @@ def get_db():
     try:
         scrt_db = os.getenv("DATABASE_URL")
 
-        conn = psycopg2.connect(scrt_db, sslmode="require")
+        conn = psycopg2.connect(
+    user="postgres.sbykicbslggbbmvwtmhl",
+    password="Z4zioraa_db",
+    host="aws-1-ap-northeast-1.pooler.supabase.com",
+    port=5432,
+    dbname="postgres"
+)
         print("DB OK!!")
         return conn, conn.cursor()
 
