@@ -9,7 +9,7 @@ def get_db():
 
         conn = psycopg2.connect(
     user="postgres.sbykicbslggbbmvwtmhl",
-    password=os.getenv("DATABSE_PSWD"),
+    password=os.getenv("DATABASE_PSWD"),
     host="aws-1-ap-northeast-1.pooler.supabase.com",
     port=5432,
     dbname="postgres"
@@ -21,4 +21,5 @@ def get_db():
         print("DB not connected!!")
         print("Error:", e)
         return None, None
+
 
