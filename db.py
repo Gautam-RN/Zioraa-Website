@@ -22,4 +22,3 @@ def get_db():
         print("Error:", e)
         return None, None
 
-

@@ -53,6 +53,7 @@ def get_prod():
         return prods
 
     except Exception as e:
+        db.rollback()
         print("get_prod error:", e)
         return []
 
@@ -66,7 +67,7 @@ def get_prod():
 def home():
     data=get_prod()
     if data:
-        return render_template("home.html", products=data[:3])
+        return render_template("home.html",products=data[:3])
     else:
         return render_template("home.html")
     
@@ -75,6 +76,7 @@ def home():
 def store():
     db, cur = get_db()
     if not cur:
+        db.rollback()
         return render_template("404.html"), 500
 
     try:
@@ -90,6 +92,7 @@ def store():
 def product_detail(pid):
     db, cur = get_db()
     if not cur:
+        db.rollback()
         return render_template("404.html"), 500
     try:
         cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products WHERE pid=%s", (pid,))
@@ -102,7 +105,7 @@ def product_detail(pid):
         if not data:
             abort(404)
         prod = dict(zip(heading, data))
-        prod['offer']=float(prod['price'])-(float(prod['price'])*float(prod['offer']))
+        prod['offer']=float(prod['price'])-(float(prod['price'])*float(prod['offer'])/100)
         prod["prodname"] = prod["prodname"].title()
 
         cur.execute("SELECT link FROM images WHERE pid=%s", (prod["pid"],))
@@ -136,6 +139,7 @@ def add_wish(pid):
 
     db, cur = get_db()
     if not cur:
+        db.rollback()
         return render_template("404.html"), 500
 
     try:
@@ -157,6 +161,7 @@ def add_cart(pid):
 
     db, cur = get_db()
     if not cur:
+        db.rollback()
         return render_template("404.html"), 500
 
     try:
@@ -171,6 +176,7 @@ def add_cart(pid):
 
         db.close()
 
+#-------------review-------------
 @products.route("/add_review/<int:pid>", methods=["POST"])
 def add_review(pid):
     if not login_required():
@@ -192,3 +198,50 @@ def add_review(pid):
     conn.close()
 
     return redirect(url_for("products.product_detail", pid=pid))
+
+#----------contact--------
+@products.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+#-----------cutomize-----------
+@products.route("/custom")
+def custom():
+    return render_template("custom.html")
+
+#--------------cart-------
+@products.route("/cart")
+def cart():
+    if not login_required():
+        return redirect(url_for('auth.login'))
+    db,cur = get_db()
+    cur.execute("Select pid from cart where uid=%s",(session['uid'],))
+    data=cur.fetchall()
+    l=[]
+    m=[]
+    t=of=0
+    for i in data:
+        cur.execute("Select * from products where pid=%s",(i[0],))
+        data=cur.fetchone()
+        data=list(data)
+        of+=(data[4]*data[5]/100)
+        m.append(data[0])
+        cur.execute("Select link from images where pid=%s",(data[0],))
+        img=cur.fetchone()
+        if img:
+            data.append("images/"+str(img[0]))
+        else:
+            data.append("images/black.png")
+        l.append(data)
+        t+=data[4]
+    db.close()
+    st=t-of
+    return render_template("cart.html",cart=l,total=t,i=m,offer=of,sub=st)
+
+@products.route("/delcart/<int:pid>")
+def delcart(pid):
+    db,cur=get_db()
+    cur.execute("Delete from cart where pid=%s",(pid,))
+    db.commit()
+    db.close()
+    return redirect((url_for("products.cart")))

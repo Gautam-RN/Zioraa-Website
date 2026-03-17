@@ -31,9 +31,10 @@ def authenticate():
             return render_template_string("<script>alert('Invalid credentials');history.back()</script>")
 
         session['uid'] = user[0]
-        return render_template_string("<script>history.go(-1)</script>")
+        return render_template_string("<script>history.go(-2)</script>")
 
     except Exception as e:
+        db.rollback()
         return render_template("404.html",e=e), 500
 
 
@@ -122,6 +123,7 @@ def profile():
                                cart=cart,t=t)
 
     except Exception as e:
+        db.rollback()
         return render_template("404.html", e=e), 500
 
 
@@ -130,21 +132,13 @@ def profile():
 def update_profile():
     if not login_required():
         return redirect(url_for('auth.login'))
-
     try:
-        cur.execute(
-            "UPDATE users SET username = %s, phone = %s, address = %s WHERE uid = %s;",
-            (
-                request.form['name'],
-                request.form['phone'],
-                request.form['address'],
-                session['uid']
-            )
-        )
+        cur.execute("UPDATE users SET username = %s, phone = %s, address = %s WHERE uid = %s;",(request.form['name'],request.form['phone'],request.form['address'],session['uid']))
         db.commit()
         return redirect(url_for('auth.profile'))
 
     except Exception:
+        db.rollback()
         return render_template("404.html"), 500
 
 
@@ -172,8 +166,8 @@ def change_password():
         return redirect(url_for('auth.profile'))
 
     except Exception:
+        db.rollback()
         return render_template("404.html"), 500
-
 
 
 

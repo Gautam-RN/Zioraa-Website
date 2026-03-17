@@ -9,6 +9,10 @@ from payment import payment  # <--- import payment blueprint
 
 load_dotenv()
 
+from db import get_db
+
+db,cur=get_db()
+
 app = Flask(__name__)
 scrt_app = os.getenv("FLASK_SECRET_KEY")
 app.secret_key = scrt_app
@@ -20,6 +24,7 @@ app.register_blueprint(payment)
 
 @app.errorhandler(404)
 def page_not_found(e):
+    db.rollback()
     return render_template(
         "404.html",
         code=404,
@@ -36,6 +41,7 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_error(e):
+    db.rollback()
     return render_template(
         "404.html",
         code=500,
@@ -47,6 +53,7 @@ def internal_error(e):
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    db.rollback()
     # Generic handler for other errors
     return render_template(
         "404.html",
@@ -56,14 +63,6 @@ def handle_exception(e):
         steps=None,
         e=e
     ), getattr(e, 'code', 400)
-
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")
-
-@app.route("/custom")
-def custom():
-    return render_template("custom.html")
 
 # ---------- RUN ----------
 if __name__ == "__main__":

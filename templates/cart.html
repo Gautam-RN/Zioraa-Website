@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<title>Zioraa | Cart</title>
+</head>
+<body>
+<div class="cart-header">
+<h1>Your Cart</h1>
+<a href="/" class="home-btn"><i class="fa fa-home"></i></a>
+</div>
+<div class="cart-container">
+{% if cart %}
+<table class="cart-table">
+<tr>
+<th>Product</th>
+<th>Amount</th>
+<th></th>
+</tr>
+{% for item in cart %}
+<tr>
+<td>
+<div class="cart-product">
+<img src="{{url_for('static', filename=item[10])}}">
+<div>
+<div>{{item[1]}}</div>
+</div>
+</div>
+</td>
+<td>₹{{item[4]}}</td>
+<td>
+<a href="{{url_for('products.delcart', pid=item[0])}}"><i class="fa fa-trash remove"></i></a>
+</td>
+</tr>
+{% endfor %}
+</table>
+<div class="cart-summary">
+<div class="summary-box">
+<h3>Order Summary</h3>
+<div class="summary-row">
+<span>Subtotal</span>
+<span>₹{{total}}</span>
+</div>
+<div class="summary-row">
+<span>Discount</span>
+<span>-{{offer}}</span>
+</div>
+<div class="summary-row">
+<span>Shipping</span>
+<span>Free</span>
+</div>
+<hr style="border-color:#333; margin:10px 0">
+<div class="summary-row">
+<b>Total</b>
+<b>₹{{sub}}</b>
+</div>
+<a class="checkout" href="{{url_for('payment.checkout', pid=i)}}">
+Proceed to Checkout
+</a>
+</div>
+</div>
+{% else %}
+<div class="empty">
+<h2>Your cart is empty</h2>
+<p>Start shopping to add items to your cart.</p>
+</div>
+{% endif %}
+</div>
+</body>
+</html>

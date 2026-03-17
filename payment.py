@@ -42,13 +42,14 @@ def checkout():
         for i in pids:
             cur.execute("Select prodname,price,offer from products where pid=%s",(i,))
             data=cur.fetchone()
-            pri=float(data[1])-(float(data[2])*float(data[1]))
+            pri=float(data[1])-(float(data[2])*float(data[1])/100)
             product.append((data[0],pri))
         cur.execute("Select username,phone,address from users where uid=%s",(session['uid'],))
         data=cur.fetchone()
         co={"user":data,"product":product}
         total = sum(p[1] for p in co["product"])
     except Exception as e:
+        db.rollback()
         return render_template("404.html",code=404,title="Page Not Founf",message=getattr(e, "description", "Something went wrong.."),e=e)
     finally:
         return render_template("checkout.html", data=co,total=total)
@@ -65,6 +66,7 @@ def create_payment():
         phone = request.form.get("phone")
 
         if not amount or not phone:
+            db.rollback()
             return render_template("404.html"), 400
 
         data = {
@@ -85,6 +87,7 @@ def create_payment():
 
     except Exception as e:
         print("Payment Error:", e)
+        db.rollback()
         return render_template("404.html",code=500,title="Internal Server Error",message=getattr(e, "description", "Something went wrong on our end."),e=e), 500
 
 
@@ -101,6 +104,7 @@ def payment_status(order_id):
             return render_template("failed.html")
     except Exception as e:
         print("Payment status error:", e)
+        db.rollback()
         return render_template("404.html"), 500
 
 # ---------- CASH ON DELIVERY ----------
