@@ -1,62 +1,88 @@
 <!DOCTYPE html>
-<html>
-<style>
-body, html {
-  height: 100%;
-  margin: 0;
-}
-
-.bgimg {
-  background-image: url('{{ url_for("static", filename="images/hero.png") }}');
-  height: 100%;
-  background-position: center;
-  background-size: cover;
-  position: relative;
-  color: white;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 25px;
-}
-
-.topleft {
-  position: absolute;
-  top: 0;
-  left: 16px;
-}
-
-.bottomleft {
-  position: absolute;
-  bottom: 0;
-  left: 16px;
-}
-
-.middle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-hr {
-  margin: auto;
-  width: 40%;
-}
-</style>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<title>Customize | Zioraa</title>
+</head>
 <body>
+<section class="customize">
+  <header>
+    <div class="logo" style="width: 55%;">
+      <img src="{{ url_for('static', filename='images/name.png') }}">
+    </div>
+    <nav id="navbar">
+      <a href="/">Home</a>
+      <a href="/store">Store</a>
+      <a href="/custom">Customize</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <div class="profile-menu">
+      <div class="profile-icon" onclick="toggleProfileMenu()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v1h20v-1c0-3.3-6.7-5-10-5Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <hr>
+        <a href="/profile">My Profile</a>
+        <a href="/logout">Logout</a>
+      </div>
+    </div>
+    <div class="menu-toggle" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span></div>
+  </header>
+  <!-- HERO -->
+  <div class="custom-hero">
+    <h1>Customize Your Style</h1>
+    <p>Create your own design or modify existing ones</p>
+  </div>
+  
+    {%if templates%}
 
-<div class="bgimg">
-  <div class="topleft">
-    <p>ZIORAA</p>
+  <!-- DESIGNS -->
+  <h2 style="text-align:center;">Choose a Base Product</h2><br>
+
+  <div class="design-grid">
+    {% for d in templates %}
+    <div class="design-card" onclick="selectDesign('{{ d.name }}')">
+      <img src="{{ url_for('static', filename=d.image) }}">
+      <div class="overlay">{{ d.name }}</div>
+    </div>
+    {% endfor %}
+    {%endif%}
+
   </div>
-  <div class="middle">
-    <h1>COMING SOON</h1>
-    <hr>
-    <p>Moments left</p>
+
+  <!-- FORM -->
+  <div class="custom-form-section">
+    <h2 style="text-align:center;">Request Custom Design</h2>
+
+    <form action="{{ url_for('products.custom_request') }}" method="POST" enctype="multipart/form-data" class="custom-form">
+
+      <input type="text" name="name" placeholder="Your Name" value="{{user}}" required>
+      <input type="email" name="email" placeholder="Your Email" value="{{email}}" required>
+      <input type="phone" name="phone" placeholder="Your Contact number" value="{{phone}}" required>
+      {%if templates%}
+      <input type="text" name="temp" id="selectedDesign" placeholder="Selected product" readonly>
+      {% endif %}
+      <textarea name="details" rows="5" placeholder="Describe your custom design..." required></textarea>
+      <button type="submit" class="btn">Submit Request</button>
+    </form>
   </div>
-  <div class="bottomleft">
-    <p>Customize Weppage will be available soon</p>
-  </div>
-</div>
+</section>
+<script>
+function selectDesign(name) {
+  document.getElementById("selectedDesign").value = name;
+}
+</script>
 
 </body>
 </html>

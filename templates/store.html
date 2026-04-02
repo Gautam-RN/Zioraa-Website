@@ -11,8 +11,7 @@
 <body>
   <header>
     <div class="logo">
-      <img src="{{ url_for('static', filename='images/logo.png') }}">
-      <h1>Zioraa</h1>
+      <img src="{{ url_for('static', filename='images/name.png') }}">
     </div>
     <section class="store-search">
       <input type="text" id="searchInput" placeholder="Search products ( / )">
@@ -43,7 +42,7 @@
     <span></span>
   </header>
   <section class="store-hero">
-    <h2>Explore the Store</h2>
+    <h2>Explore the {%if name%}{{name}} Collection {%else%}Store{%endif%}</h2>
     <p>Premium designs crafted for your unique style</p>
   </section>
   <section class="store-container">
@@ -59,7 +58,7 @@
     {%if ctgy%}
     <div class="filter-group">
       {%for i in ctgy%}
-      <label><input type="checkbox" class="filter-category" value="{{i[0].lower()}}"> {{i[0].title()}}</label>
+      <label><input type="checkbox" class="filter-category" value="{{i[0]}}"> {{i[0].title()}}</label>
       {%endfor%}
     </div>
     <button id="clearFilters"style="width:100%;padding:10px;border-radius:22px;background:transparent;border:1px solid var(--border-soft);color:var(--silver);cursor:pointer;">

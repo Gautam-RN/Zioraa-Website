@@ -66,10 +66,25 @@ def get_prod():
 @products.route('/')
 def home():
     data=get_prod()
-    if data:
-        return render_template("home.html",products=data[:3])
+    db,cur=get_db()
+    cur.execute("Select * from colletion")
+    cltn=cur.fetchall()
+    headings=['cid','name','image']
+    collection=[]
+    if cltn:
+        for i in cltn:
+            collect=dict(zip(headings,i))
+            if not collect['image']:
+                collect['image']="images/black.png"
+            else:
+                collect["image"]="images/"+collect["image"]
+            collection.append(collect)
     else:
-        return render_template("home.html")
+        collection=None
+    if data:
+        return render_template("home.html",products=data[:3],collections=collection)
+    else:
+        return render_template("home.html",collections=collection)
     
 # ---------- STORE ----------
 @products.route('/store')
@@ -199,15 +214,10 @@ def add_review(pid):
 
     return redirect(url_for("products.product_detail", pid=pid))
 
-#----------contact--------
+#-----------contact-----------
 @products.route("/contact")
 def contact():
     return render_template("contact.html")
-
-#-----------cutomize-----------
-@products.route("/custom")
-def custom():
-    return render_template("custom.html")
 
 #--------------cart-------
 @products.route("/cart")
@@ -245,3 +255,104 @@ def delcart(pid):
     db.commit()
     db.close()
     return redirect((url_for("products.cart")))
+
+@products.route("/msg", methods=['POST'])
+def msg():
+    name = request.form["name"]
+    mail = request.form["mail"]
+    msg = request.form["msg"]
+
+    conn, cur = get_db()
+
+    cur.execute(
+        "INSERT INTO messages (name, mail, msg) VALUES (%s, %s, %s)",
+        (name, mail, msg)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return alert("Message sent!")
+
+@products.route("/collections/<int:cid>")
+def collection(cid):
+    db,cur=get_db()
+    cur.execute("Select * from collection where cid=%s",(cid,))
+    name=cur.fetchone()
+    try:
+        cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products where collection=%s",(name,))
+        rows = cur.fetchall()
+        if not rows:
+            return []
+
+        heading = (
+            "pid","prodname","decrp","stock",
+            "price","offer","sold","supplier",
+            "ctgy","collection"
+        )
+
+        prods = []
+
+        for row in rows:
+            prod = dict(zip(heading, row))
+            prod["prodname"] = prod["prodname"].title()
+
+            cur.execute("SELECT link FROM images WHERE pid=%s", (prod["pid"],))
+            imgs = cur.fetchall() or [("black.png",)]
+
+            prod["images"] = [f"images/{i[0]}" for i in imgs]
+
+            cur.execute(
+                "SELECT SUM(star), COUNT(*) FROM review WHERE pid=%s",
+                (prod["pid"],)
+            )
+            s, n = cur.fetchone()
+            prod["rating"] = round(s / n) if s and n else 0
+
+            prods.append(prod)
+    except:
+        prods=None
+    finally:
+        db.close()
+    cur.execute("SELECT Distinct catgy FROM products WHERE stock > 0 and collection=%s",(name,))
+    return render_template("store.html", products=prods,ctgy=cur.fetchall())
+
+#----------customize--------
+@products.route("/custom")
+def custom():
+    if not login_required():
+        return redirect(url_for('auth.login'))
+    db,cur=get_db()
+    cur.execute("Select username, email, phone from users where uid=%s",(session["uid"],))
+    u=cur.fetchone()
+    print(u)
+    cur.execute("Select * from templates")
+    data=cur.fetchall()
+    head=["tid","name","image","color"]
+    temps=[]
+    for i in data:
+        l=list(i)
+        if l[3]:
+            l[3]=(l[3]).split()
+        if not (l[2]):
+            l[2]="images/black.png"
+        else:
+            l[2]="images/"+l[2]
+        temp=dict(zip(head,l))
+        temps.append(temp)
+    db.close()
+    return render_template("custom.html",templates=temps,user=u[0],email=u[1],phone=u[2])
+
+@products.route("/customrequest", methods=["POST"])
+def custom_request():
+    mail=request.form["email"]
+    name=request.form["name"]
+    phone=request.form["phone"]
+    temp=request.form["temp"]
+    det=request.form["details"]
+    tup=(name,mail,phone,temp,det,"Requested")
+    db,cur=get_db()
+    cur.execute("INSERT INTO custom (name, mail, phone, template, description, status) VALUES (%s, %s, %s, %s, %s, %s)",tup)
+    db.commit()
+    db.close()
+    return alert("Custom request!! You can expect an email or call regarding your order!")

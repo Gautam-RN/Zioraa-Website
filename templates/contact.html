@@ -11,11 +11,9 @@
 </head>
 <body>
   <header>
-    <div class="logo">
-      <img src="{{ url_for('static', filename='images/logo.png') }}">
-      <h1>Zioraa</h1>
+    <div class="logo" style="width: 55%;">
+      <img src="{{ url_for('static', filename='images/name.png') }}">
     </div>
-    <div style="width:33vw"></div>
     <nav id="navbar">
       <a href="/">Home</a>
       <a href="/store">Store</a>
@@ -42,6 +40,7 @@
     <span></span></div>
   </header>
   <section class="contact">
+    <br>
     <h2>We’d Love to Hear From You</h2>
     <p>Support, collaborations, or ideas — just drop us a message.</p>
     <form class="contact-full">
@@ -55,7 +54,7 @@
       <div class="field">
         <textarea rows="5" placeholder="Your Message" required></textarea>
       </div>
-      <button class="btn">Send</button>
+      <a class="btn" href="/msg">Send</a>
     </form>
     <div class="contact-bottom">
       <div class="map-wrapper fade-up">

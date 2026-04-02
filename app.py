@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 import os
 
 from auth import auth
+from dash import dash
 from products import products
-from payment import payment  # <--- import payment blueprint
+from payment import payment  
 
 load_dotenv()
 
@@ -21,7 +22,8 @@ app.secret_key = scrt_app
 app.register_blueprint(auth)
 app.register_blueprint(products)
 app.register_blueprint(payment)  
-
+app.register_blueprint(dash)  
+"""
 @app.errorhandler(404)
 def page_not_found(e):
     db.rollback()
@@ -63,7 +65,7 @@ def handle_exception(e):
         steps=None,
         e=e
     ), getattr(e, 'code', 400)
-
+"""
 # ---------- RUN ----------
 if __name__ == "__main__":
     app.run(debug=True)

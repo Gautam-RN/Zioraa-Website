@@ -92,7 +92,7 @@
     }
 
     header img {
-      width: 30%;
+      width: 180px;
       padding: 10px;
     }
 
@@ -163,6 +163,6 @@
 
     .menu-toggle {
         display: flex;
-        margin-right: 20px;
+        padding: 10px;
     }
 }

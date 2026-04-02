@@ -72,8 +72,8 @@ def add_user():
             )
 
         cur.execute(
-            "INSERT INTO users (username, email, pass) VALUES (%s, %s, %s) RETURNING uid;",
-            (name, email, password)
+            "INSERT INTO users (username, email, pass, desig) VALUES (%s, %s, %s) RETURNING uid;",
+            (name, email, password,"u")
         )
 
         uid = cur.fetchone()
