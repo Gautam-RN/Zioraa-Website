@@ -35,7 +35,19 @@ def authenticate():
 
     except Exception as e:
         db.rollback()
-        return render_template("404.html",e=e), 500
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message=str(e),
+        steps=[
+            "Check the URL for any typing errors",
+            "Refresh the page or try again after a moment",
+            "Navigate back to our homepage to continue browsing",
+            "Clear your browser cache if the issue persists"
+        ],
+        e=e
+    )
 
 
 @auth.route('/logout')
@@ -72,7 +84,7 @@ def add_user():
             )
 
         cur.execute(
-            "INSERT INTO users (username, email, pass, desig) VALUES (%s, %s, %s) RETURNING uid;",
+            "INSERT INTO users (username, email, pass, desig) VALUES (%s, %s, %s, %s) RETURNING uid;",
             (name, email, password,"u")
         )
 
@@ -85,11 +97,6 @@ def add_user():
         db.commit()
         return redirect(url_for('auth.profile'))
 
-    except Exception as e:
-        db.rollback()
-        print(e)  # keep for debugging
-        return render_template("404.html"), 500
-
     finally:
         cur.close()
 
@@ -100,7 +107,7 @@ def add_user():
 def profile():
     if not login_required():
         return redirect(url_for('auth.login'))
-
+    db,cur=get_db()
     try:
         cur.execute("SELECT * FROM users WHERE uid=%s", (session['uid'],))
         user = cur.fetchone()
@@ -124,7 +131,19 @@ def profile():
 
     except Exception as e:
         db.rollback()
-        return render_template("404.html", e=e), 500
+        return render_template(
+        "404.html",
+        code=getattr(e, 'code', 400),
+        title="An Error Occurred",
+        message=str(e),
+        steps=[
+            "Check the URL for any typing errors",
+            "Refresh the page or try again after a moment",
+            "Navigate back to our homepage to continue browsing",
+            "Clear your browser cache if the issue persists"
+        ],
+        e=e
+    )
 
 
 # -------- UPDATE PROFILE --------
@@ -137,9 +156,21 @@ def update_profile():
         db.commit()
         return redirect(url_for('auth.profile'))
 
-    except Exception:
+    except Exception as e:
         db.rollback()
-        return render_template("404.html"), 500
+        return render_template(
+        "404.html",
+        code=getattr(e, 'code', 400),
+        title="An Error Occurred",
+        message=str(e),
+        steps=[
+            "Check the URL for any typing errors",
+            "Refresh the page or try again after a moment",
+            "Navigate back to our homepage to continue browsing",
+            "Clear your browser cache if the issue persists"
+        ],
+        e=e
+    )
 
 
 # -------- CHANGE PASSWORD --------
@@ -165,9 +196,62 @@ def change_password():
 
         return redirect(url_for('auth.profile'))
 
-    except Exception:
+    except Exception as e:
         db.rollback()
-        return render_template("404.html"), 500
+        return render_template(
+        "404.html",
+        code=getattr(e, 'code', 400),
+        title="An Error Occurred",
+        message=str(e),
+        steps=[
+            "Check the URL for any typing errors",
+            "Refresh the page or try again after a moment",
+            "Navigate back to our homepage to continue browsing",
+            "Clear your browser cache if the issue persists"
+        ],
+        e=e
+    )
+
+@auth.route("/password")
+def forgot_password():
+    return render_template('pswd.html')
 
 
+@auth.route("/email-request", methods=['POST'])
+def email_request():
 
+    email = request.form['email']
+
+    db, cur = get_db()
+
+    try:
+        cur.execute(
+            "SELECT pass FROM users WHERE email=%s",
+            (email,)
+        )
+
+        data = cur.fetchone()
+
+        if data is None:
+            return render_template_string(
+                "<script>alert('Email not registered!');history.back()</script>"
+            )
+
+        pswd = data[0]
+
+        cur.execute(
+            "INSERT INTO password VALUES (%s,%s)",
+            (email, pswd)
+        )
+
+        db.commit()
+
+        return render_template_string(
+            "<script>alert('You will get your password in your email soon!');history.back()</script>"
+        )
+
+    except Exception as e:
+        return str(e)
+
+    finally:
+        db.close()

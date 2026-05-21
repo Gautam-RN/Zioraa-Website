@@ -71,7 +71,9 @@
     <div><div class="store-products">
       {% for product in products %}
       <div class="product-card" data-category="{{product.ctgy}}" data-price="{{product.price}}" data-link="{{ url_for('products.product_detail', pid=product.pid) }}">
-        <img class="product-image" src="{{url_for('static', filename=product.images[0])}}">
+        <div class="product-image" style="background-image: url('{{url_for('static', filename=product.images[0])}}'">
+          <img src="{{url_for('static', filename=product.images[0])}}" alt="">
+        </div>
         <div class="product-content">
           <h3>{{product.prodname}}</h3>
           <p>{{product.decrp}}</p>
@@ -88,7 +90,23 @@
     {%else%}
     <p>No Products to display</p>
     {%endif%}
+
   </section>
+  <div class="pagination">
+
+  {% if page > 1 %}
+    <a href="{{ url_for('products.store', page=page-1) }}" class="page-btn">
+      ←
+    </a>
+  {% endif %}
+
+  <span class="page-number">Page {{ page }}</span>
+
+  <a href="{{ url_for('products.store', page=page+1) }}" class="page-btn">
+    →
+  </a>
+
+</div>
   <footer>© 2026 Zioraa. All rights reserved.</footer>
   <script src="{{ url_for('static', filename='js/store.js')}}"></script>
   <script src="{{ url_for('static', filename='js/common.js')}}"></script>

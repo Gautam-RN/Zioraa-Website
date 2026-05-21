@@ -1,138 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Zioraa Dashboard</title>
-  <link rel="stylesheet" href="{{url_for('static', filename='css/dash.css')}}">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <meta charset="UTF-8">
+
+    <title>Zioraa Dashboard</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <link rel="icon"
+          type="image/png"
+          href="{{ url_for('static', filename='images/logo.png') }}">
+
+    <link rel="stylesheet"
+          href="{{url_for('static', filename='css/dash.css')}}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
 </head>
+
 <body>
 
-<div class="container">
+<div class="dashboard-layout">
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h2>ZIORAA</h2>
-    <button onclick="showSection('dashboard', this)">Dashboard</button>
-    <button onclick="showSection('orders', this)">Pending Orders</button>
-    <button onclick="showSection('sold', this)">Top Selling Product</button>
-    <button onclick="showSection('products', this)">Product Edit</button>
-    <button onclick="showSection('offer', this)">Offers Running</button>
-  </div>
-
-  <!-- Content -->
-  <div class="content">
-    <a class="home-button" href="/"><i class="fa fa-home"></i></a>
-    <!-- Dashboard -->
-    <div id="dashboard" class="section">
-      <h1>Dashboard</h1>
-      {%if revenue and count%}
-      <h3>Company Overview</h3>
-      <div class="cards">
-        <div class="card">Total Orders: {{count.overall}}</div>
-        <div class="card">Revenue: ₹{{revenue.overall}}</div>
-      </div><br><hr><br>
-      <h3>Monthly Overview</h3>
-      <div class="cards">
-        <div class="card">Total Orders: {{count.month}}</div>
-        <div class="card">Revenue: ₹{{revenue.month}}</div>
-      </div><br><hr><br>
-      <h3>Yearly Overview</h3>
-      <div class="cards">
-        <div class="card">Total Orders: {{count.year}}</div>
-        <div class="card">Revenue: ₹{{revenue.year}}</div>
-      </div>
-      {%else%}
-      <h3>ERROR! <br>Data not found!!</h3>
-      {%endif%}
+    <!-- MOBILE OVERLAY -->
+    <div class="overlay"
+         onclick="toggleSidebar()">
     </div>
 
-    <!-- Products -->
-    <div id="products" class="section hidden">
-      <h1>Products</h1>
-      <table>
-        <tr>
-          <th>Name</th><th>Price</th><th>Category</th><th>Description</th><th>Offer</th>
-        </tr>
-        <tr>
-          <td>Anime Tee</td><td>₹499</td><td>Streetwear</td><td>Oversized tee</td><td>10%</td>
-        </tr>
-      </table>
-    </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-    <!-- Orders -->
-    <div id="orders" class="section hidden">
-      <h1>Orders</h1>
-      {%if orders%}
-      <table>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Product</th>
-          <th>Price</th>
-          <th>Payment</th>
-          <th></th>
-        </tr>
-        {%for order in orders%}
-        <tr>
-          <td>order.oid</td>
-          <td>order.username</td>
-          <td>order.product</td>
-          <td>order.price</td>
-          <td>order.payment</td>
-          <td><a href="order_detail/{{order.oid}}">More</a></td>
-        </tr>
-        {%endfor%}
-      </table>
-      {%else%}
-      <h3> No Orders running now. You can work on other things!</h3>
-      {%endif%}
-    </div>
+        <div class="sidebar-top">
 
-    <!-- Users (Admin only) -->
-    <div id="users" class="section hidden admin">
-      <h1>Users</h1>
-      <table>
-        <tr>
-          <th>Name</th><th>Role</th><th>Actions</th>
-        </tr>
-        <tr>
-          <td>John</td>
-          <td>Agent</td>
-          <td>
-            <button>Make Admin</button>
-            <button>Delete</button>
-          </td>
-        </tr>
-      </table>
-    </div>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Zioraa Logo" class="sidebar-logo" width="50">
+            <div>
+                <h2>Zioraa</h2>
+                <span>Admin Panel</span>
+            </div>
+        </div>
+        
+        <div class="nav-section">
 
-    <!-- Manage Products (Admin only) -->
-    <div id="manageProducts" class="section hidden admin">
-      <h1>Manage Products</h1>
+            <p class="nav-title">
+                MAIN
+            </p>
 
-      <form>
-        <input type="text" placeholder="Name">
-        <input type="number" placeholder="Price">
-        <input type="text" placeholder="Category">
-        <input type="text" placeholder="Description">
-        <input type="text" placeholder="Offer">
-        <button type="submit">Add Product</button>
-      </form>
-    </div>
+            <button onclick="loadTab('/dash/dashboard')">
+                <i class="fa fa-th-large"></i>
+                Dashboard
+            </button>
 
-    <!-- Agent Sales -->
-    <div id="mySales" class="section hidden agent">
-      <h1>My Sales</h1>
-      <p>Total Sold: 35 items</p>
-      <p>Total Revenue: ₹8,000</p>
-    </div>
+            <button onclick="loadTab('/dash/admin')">
+                <i class="fa fa-user-secret"></i>
+                Admins
+            </button>
 
-  </div>
+            <button onclick="loadTab('/dash/ord-request')">
+                <i class="fa fa-shopping-cart"></i>
+                Order Requests
+            </button>
+
+            <button onclick="loadTab('/dash/messages')">
+                <i class="fa fa-envelope"></i>
+                Messages
+            </button>
+
+            <button onclick="loadTab('/dash/password')">
+                <i class="fa fa-envelope"></i>
+                Password Requests
+            </button>
+
+        </div>
+
+
+        <div class="nav-section">
+
+            <p class="nav-title">
+                MANAGEMENT
+            </p>
+
+            <button onclick="loadTab('/dash/ord-find')">
+                <i class="fa fa-search"></i>
+                Find Order
+            </button>
+
+            <button onclick="loadTab('/dash/prod-top')">
+                <i class="fa fa-line-chart"></i>
+                Top Selling
+            </button>
+
+            <button onclick="loadTab('/dash/prod-critic')">
+                <i class="fa fa-warning"></i>
+                Critical Products
+            </button>
+
+            <button onclick="loadTab('/dash/products')">
+                <i class="fa fa-cube"></i>
+                Products
+            </button>
+
+            <button onclick="loadTab('/dash/users')">
+                <i class="fa fa-users"></i>
+                Users
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+
+            <div class="topbar-left">
+
+                <div class="menu-btn"
+                     onclick="toggleSidebar()">
+                    ☰
+                </div>
+
+                <div>
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                    <p>
+                        Welcome back to Zioraa Admin Panel
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <a class="home-btn" href="/">
+                    <i class="fa fa-home"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONTENT -->
+        <div id="content-area">
+
+            <div class="loading">
+
+                Loading Dashboard...
+
+            </div>
+
+        </div>
+
+    </main>
+
 </div>
 
 <script src="{{url_for('static', filename='js/dash.js')}}"></script>
+
+<script>
+
+    loadTab('/dash/dashboard')
+
+</script>
+
 </body>
 </html>

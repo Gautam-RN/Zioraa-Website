@@ -1,0 +1,147 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dash.css') }}">
+
+<div class="section">
+    <h1>User Management</h1>
+
+    <!-- Search User -->
+    <form action="/search-user" method="POST" class="admin-form ajax-form">
+    <label for="uid">Find User</label>
+    <input type="number" id="uid" name="uid" placeholder="Enter User ID..." required>
+    <button type="submit">Search</button>
+    </form>
+        {% if found_user %}
+
+        <div class="table-wrapper"
+             style="margin-top:28px;">
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        UID
+                    </th>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Email
+                    </th>
+
+                    <th>
+                        Phone
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+
+                <tr>
+
+                    <!-- UID -->
+                    <td>
+
+                        #{{found_user.uid}}
+
+                    </td>
+
+
+                    <!-- NAME -->
+                    <td>
+
+                        <div style="
+                            font-weight:600;
+                        ">
+
+                            {{found_user.name}}
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- EMAIL -->
+                    <td>
+
+                        <span style="
+                            color:#d7d7d7;
+                        ">
+
+                            {{found_user.email}}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- PHONE -->
+                    <td>
+
+                        {{found_user.phone}}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+                    <td>
+
+                        <span class="badge badge-success">
+
+                            <i class="fa fa-check-circle"></i>
+
+                            Active
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- ACTION -->
+                    <td>
+
+                        <form action="/delete-user"
+                              method="POST"
+                              style="margin:0;" class="ajax-form">
+
+                            <input type="hidden"
+                                   name="uid"
+                                   value="{{found_user.uid}}">
+
+                            <button type="submit"
+                                    style="
+                                    background:
+                                    linear-gradient(
+                                        135deg,
+                                        #ff4d4d,
+                                        #d93636
+                                    );
+                                    color:white;
+                                    ">
+
+                                <i class="fa fa-trash"></i>
+
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+        {% endif %}
+    </div>
+</div>

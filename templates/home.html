@@ -46,89 +46,94 @@
     </div>
     <a class="store-btn" href="/store">Shop Now</a>
   </section>
- <section class="featured">
+  <section class="featured">
 
-  <!-- 💻 DESKTOP VIEW -->
-  <div class="lap">
-    {% if products %}
-    <h2>Featured Products</h2>
+    <!-- 💻 DESKTOP VIEW -->
+    <div class="lap">
+      {% if products %}
+      <h2>Featured Products</h2>
 
-    <div class="product-grid">
-      {% for product in products %}
-      <div class="product-card">
-        <img class="product-image" src="{{url_for('static', filename=product.images[0])}}">
-        <div class="product-content">
-          <h3>{{product.prodname}}</h3>
-          <div class="rating">
-            {{ '★' * product.rating + '☆' * (5 - product.rating) }}
-            <span>({{ product.rating }}/5)</span>
-          </div>
-          <div class="price">₹{{product.price}}</div>
-          <a href="{{ url_for('products.product_detail', pid=product.pid) }}" class="btn">Check it</a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <br>
-    <a class="store-btn" href="/store">Go to Store</a>
-    {% endif %}
-  </div>
-
-  <!-- 📱 MOBILE VIEW (SLIDER) -->
-  <div class="mob">
-    <h2>Featured Products</h2>
-
-    <div class="slider">
-      <div class="slides" id="slides">
+      <div class="product-grid">
         {% for product in products %}
-        <div class="slide">
-          <div class="product-card">
-            <img class="product-image" src="{{url_for('static', filename=product.images[0])}}">
-            <div class="product-content">
-              <h3>{{product.prodname}}</h3>
-              <div class="rating">
-                {{ '★' * product.rating + '☆' * (5 - product.rating) }}
-                <span>({{ product.rating }}/5)</span>
-              </div>
-              <div class="price">₹{{product.price}}</div>
-              <a href="{{ url_for('products.product_detail', pid=product.pid) }}" class="btn">Check it</a>
+        <div class="product-card">
+          <div class="product-image" style="background-image: url('{{url_for('static', filename=product.images[0])}}'">
+            <img src="{{url_for('static', filename=product.images[0])}}" alt="">
+          </div>
+          <div class="product-content">
+            <h3>{{product.prodname}}</h3>
+            <div class="rating">
+              {{ '★' * product.rating + '☆' * (5 - product.rating) }}
+              <span>({{ product.rating }}/5)</span>
             </div>
+            <div class="price">₹{{product.price}}</div>
+            <a href="{{ url_for('products.product_detail', pid=product.pid) }}" class="btn">Check it</a>
           </div>
         </div>
         {% endfor %}
       </div>
 
-      <button class="arr prev" onclick="prevSlide()">❮</button>
-      <button class="arr next" onclick="nextSlide()">❯</button>
+      <br>
+      <a class="store-btn" href="/store">Go to Store</a>
+      {% endif %}
     </div>
 
-    <br>
-    <a class="store-btn" href="/store">Go to Store</a>
-  </div>
+    <!-- 📱 MOBILE VIEW (SLIDER) -->
+    <div class="mob">
+      <h2>Featured Products</h2>
 
-</section>
-{%if collections%}
-<section class="collections">
-  <h2>Our Collections</h2>
+      <div class="slider">
+        <div class="slides" id="slides">
+          {% for product in products %}
+          <div class="slide">
+            <div class="product-card">
+              <img class="product-image" src="{{url_for('static', filename=product.images[0])}}">
+              <div class="product-content">
+                <h3>{{product.prodname}}</h3>
+                <div class="rating">
+                  {{ '★' * product.rating + '☆' * (5 - product.rating) }}
+                  <span>({{ product.rating }}/5)</span>
+                </div>
+                <div class="price">₹{{product.price}}</div>
+                <a href="{{ url_for('products.product_detail', pid=product.pid) }}" class="btn">Check it</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
 
-  <div class="collection-slider">
-    <button class="c-btn prev" onclick="moveSlide(-1)">❮</button>
-    <div class="collection-track" id="collectionTrack">
-      {%for i in collections%}
-      <a href="/collections?category={{ i.cid }}" class="collection-link"></a>
-      <div class="collection-card">
-        <img src="{{url_for('static', filename=i.image)}}">
-        <div class="collection-overlay">{{i.name}}</div>
+        <button class="arr prev" onclick="prevSlide()">❮</button>
+        <button class="arr next" onclick="nextSlide()">❯</button>
       </div>
-      </a>
-      {%endfor%}
+
+      <br>
+      <a class="store-btn" href="/store">Go to Store</a>
     </div>
 
-    <button class="c-btn next" onclick="moveSlide(1)">❯</button>
-  </div>
-</section>
-{%endif%}
+  </section>
+  {%if collections%}
+  <section class="collections">
+    <h2>Our Collections</h2>
+
+    <div class="collection-slider">
+      
+      <button class="c-btn prev" onclick="moveSlide(-1)">❮</button>
+
+      <div class="collection-track" id="collectionTrack">
+        {%for i in collections%}
+        <a href="/collections/{{ i.cid }}" class="collection-link">
+          <div class="collection-card">
+            <img src="{{url_for('static', filename=i.image)}}">
+            <div class="collection-overlay">{{i.name}}</div>
+          </div>
+        </a>
+        {%endfor%}
+      </div>
+
+      <button class="c-btn next" onclick="moveSlide(1)">❯</button>
+
+    </div>
+  </section>
+  {%endif%}
   <section class="contact">
     <div class="contact-container">
       <div class="contact-left">
@@ -164,6 +169,7 @@
     © 2026 Zioraa. All rights reserved.
   </footer>
   <script src="{{ url_for('static', filename='js/common.js')}}"></script>
-  <script src="{{ url_for('static', filename='js/home.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/home/collection.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/home/featured.js')}}"></script>
 </body>
 </html>

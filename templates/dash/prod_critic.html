@@ -1,0 +1,224 @@
+<div class="section-wrapper">
+
+    <!-- HEADER -->
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <h2>
+                Critical Rated Products
+            </h2>
+
+            <p>
+                Monitor low-performing and poorly rated products
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCT TABLE -->
+    <div class="content-block">
+
+        <div class="block-header">
+
+            <h3>
+                Low Rated Products
+            </h3>
+
+
+        </div>
+
+
+        {% if lows %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        Product ID
+                    </th>
+
+                    <th>
+                        Product
+                    </th>
+
+                    <th>
+                        Price
+                    </th>
+
+                    <th>
+                        Offer
+                    </th>
+
+                    <th>
+                        Rating
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+
+                {% for low in lows %}
+
+                <tr>
+
+                    <!-- PRODUCT ID -->
+                    <td>
+
+                        #{{low.pid}}
+
+                    </td>
+
+
+                    <!-- PRODUCT NAME -->
+                    <td>
+
+                        <div style="
+                            font-weight:600;
+                            max-width:240px;
+                            line-height:1.6;
+                        ">
+
+                            {{low.name}}
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- PRICE -->
+                    <td>
+
+                        <span style="
+                            font-weight:700;
+                            color:#f5d27a;
+                        ">
+
+                            ₹{{low.price}}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- OFFER -->
+                    <td>
+
+                        <input type="text"
+                               name="product_offer_{{low.pid}}"
+                               value="{{low.offer}}"
+                               style="
+                               width:110px;
+                               padding:10px 12px;
+                               background:#111;
+                               border:1px solid var(--border);
+                               border-radius:10px;
+                               color:white;
+                               ">
+
+                    </td>
+
+
+                    <!-- RATING -->
+                    <td>
+
+                        {% if low.rating >= 4 %}
+
+                        <span class="badge badge-success">
+
+                            <i class="fa fa-star"></i>
+
+                            {{low.rating}}
+
+                        </span>
+
+                        {% elif low.rating >= 2 %}
+
+                        <span class="badge badge-warning">
+
+                            <i class="fa fa-star-half-o"></i>
+
+                            {{low.rating}}
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge badge-danger">
+
+                            <i class="fa fa-warning"></i>
+
+                            {{low.rating}}
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+                    <td>
+
+                        <a href="product/{{low.pid}}"
+                           style="text-decoration:none;">
+
+                            <button class="btn-secondary">
+
+                                <i class="fa fa-eye"></i>
+
+                                View
+
+                            </button>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <i class="fa fa-check-circle"
+               style="
+               font-size:42px;
+               margin-bottom:16px;
+               opacity:.35;
+               ">
+            </i>
+
+            <h3 style="margin-bottom:8px;">
+
+                No Critical Products
+
+            </h3>
+
+            <p>
+
+                All products are performing well right now.
+
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>

@@ -1,0 +1,170 @@
+<div class="section-wrapper">
+    <!-- HEADER -->
+    <div class="section-header">
+        <div class="section-title">
+            <h2>Order Management</h2>
+            <p>Track, manage and monitor customer orders</p>
+        </div>
+    </div>
+    <!-- PENDING ORDERS -->
+    <div class="content-block">
+        <div class="block-header">
+            <h3>Pending Orders</h3>
+        </div>
+        {% if orders %}
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                </tr>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{order.oid}}</td>
+                    <td>{{order.name}}</td>
+                    <td>
+                        <div style=" max-width:220px; line-height:1.5; ">
+                            {{order.product}}
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-weight:700;color:#f5d27a;">
+                            ₹{{order.price}}
+                        </span>
+                    </td>
+                    <!-- PAYMENT -->
+                    <td>
+                        <input type="text"
+                               name="order_pay_{{order.oid}}"
+                               value="{{order.pay}}"
+                               style="
+                               width:100px;
+                               padding:10px 12px;
+                               background:#111;
+                               border:1px solid var(--border);
+                               border-radius:10px;
+                               color:white;
+                               ">
+                    </td>
+                    <!-- STATUS -->
+                    <td>
+                        <input type="text"
+                               name="order_status_{{order.oid}}"
+                               value="{{order.status}}"
+                               style="
+                               width:120px;
+                               padding:10px 12px;
+                               background:#111;
+                               border:1px solid var(--border);
+                               border-radius:10px;
+                               color:white;
+                               ">
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fa fa-shopping-cart"
+               style="
+               font-size:42px;
+               margin-bottom:16px;
+               opacity:.35;
+               ">
+            </i>
+            <h3 style="margin-bottom:8px;">
+                No Active Orders
+            </h3>
+            <p>
+                There are currently no running orders.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    <!-- FIND ORDER -->
+    <div class="content-block">
+        <div class="block-header">
+            <h3>
+                Find Order
+            </h3>
+        </div>
+        <form action="/search-order"
+              method="POST" class="ajax-form">
+            <input type="number"
+                   id="oid"
+                   name="oid"
+                   placeholder="Enter Order ID..."
+                   required>
+            <button type="submit">
+                <i class="fa fa-search"></i>
+                Search Order
+            </button>
+        </form>
+        {% if found_order %}
+        <div class="table-wrapper"
+             style="margin-top:25px;">
+            <table>
+                <tr>
+                    <th>
+                        Order ID
+                    </th>
+                    <th>
+                        Customer
+                    </th>
+                    <th>
+                        Product
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        #{{found_order.oid}}
+                    </td>
+
+                    <td>
+                        {{found_order.name}}
+                    </td>
+
+                    <td>
+                        {{found_order.product}}
+                    </td>
+                    <td>
+
+                        <span style="
+                            font-weight:700;
+                            color:#f5d27a;
+                        ">
+                            ₹{{found_order.price}}
+                        </span>
+                    </td>
+                    <td>
+                        {% if found_order.status == "Delivered" %}
+                        <span class="badge badge-success">
+                            Delivered
+                        </span>
+                        {% elif found_order.status == "Pending" %}
+                        <span class="badge badge-warning">
+                            Pending
+                        </span>
+                        {% else %}
+                        <span class="badge badge-danger">
+                            {{found_order.status}}
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>

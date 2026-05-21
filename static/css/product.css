@@ -14,11 +14,32 @@
 }
 
 .main-image {
+  position: relative;
   width: 100%;
   height: 350px;
   border-radius: 16px;
-  background: url("{{ url_for('static', filename=product.images[0]) }}") center/cover no-repeat;
+  overflow: hidden;
   margin-bottom: 18px;
+  background: #0f0f0f;
+}
+
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+.main-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg) center/cover no-repeat;
+  filter: blur(25px);
+  transform: scale(1.2);
+  z-index: 1;
+  opacity: 0.6;
 }
 
 .thumbnail-row {
@@ -27,14 +48,96 @@
 }
 
 .thumb {
+  position: relative;
   width: 90px;
   height: 90px;
   border-radius: 12px;
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
   border: 1px solid var(--border-soft);
   cursor: pointer;
   transition: 0.3s;
+  background: #111;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(180deg, #161616, #101010);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.rating-value {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.price-box {
+  margin: 20px 0 25px;
+}
+
+.price-main {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.price-old {
+  text-decoration: line-through;
+  opacity: 0.5;
+  margin-bottom: 6px;
+}
+
+.price-offer {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.description {
+  margin: 20px 0;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.meta div span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.buy-actions {
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+/* subtle blur background */
+.thumb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg) center/cover no-repeat;
+  filter: blur(12px);
+  transform: scale(1.2);
+  z-index: 1;
+  opacity: 0.5;
 }
 
 .thumb:hover {

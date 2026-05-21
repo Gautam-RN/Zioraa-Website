@@ -1,67 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Zioraa Checkout</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+    <title>Zioraa Checkout</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/checkout.css') }}">
+
+    <link rel="icon"
+          type="image/png"
+          href="{{ url_for('static', filename='images/logo.png') }}">
 </head>
+
 <body>
+
 <div class="box">
-  <h2>Checkout</h2>
-  <form method="POST">
-    <input name="name" placeholder="Name" value="{{ data.user[0] }}" required>
-    <input name="phone" placeholder="Phone" value="{{ data.user[1] }}" required>
-    <textarea name="address" placeholder="Address" required>{{ data.user[2] }}</textarea>
 
-    <div class="products">
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product in data.product %}
-          <tr>
-            <td>{{ product[0] }}</td>
-            <td>₹{{ product[1] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <h2>Checkout</h2>
 
-    <input type="hidden" name="amount" value="{{ total }}">
+    <form id="checkoutForm">
 
-    <!-- <div class="payment">
-      <label class="pay-option">
-        <input type="radio" name="pay" value="online" checked>
-        <span>Pay Online</span>
-      </label>
+        <!-- USER DETAILS -->
 
-      <label class="pay-option">
-        <input type="radio" name="pay" value="cod">
-        <span>Cash on Delivery</span>
-      </label>
-    </div> -->
+        <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Enter Name"
+            value="{{ data.username if data.username != None else '' }}"
+        >
 
-    <div class="total">Total: ₹{{ total }}</div>
+        <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter Email"
+            value="{{ data.mail if data.mail != None else '' }}"
+        >
 
-    <button type="button" class="btn" onclick="pay(event)">Place Order</button>
-  </form>
+        <input
+            type="text"
+            id="phone"
+            name="phone"
+            placeholder="Enter Phone Number"
+            value="{{ data.phone if data.phone != None else '' }}"
+        >
+
+        <textarea
+            id="address"
+            name="address"
+            placeholder="Enter Address"
+        >{{ data.address if data.address != None else '' }}</textarea>
+
+
+        <!-- PRODUCTS -->
+
+        <div class="products">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for product in data.products %}
+
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>₹{{ product.price }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="total">
+            Pay ₹{{ total }} and Click Proceed
+        </div>
+
+        <!-- BUTTON -->
+
+        <button
+            type="button"
+            onclick="payNow()"
+            class="btn"
+            style="display:block;
+                   margin:0 auto;
+                   width:120px;
+                   text-align:center;">
+
+            Proceed
+
+        </button>
+
+    </form>
+
 </div>
-
 <script>
-function pay(e){
-  e.preventDefault();
-  const payMode = "online";
-  const form = document.querySelector("form");
-  form.action = "/payment/create";
-  form.submit();
+
+async function payNow() {
+
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let address = document.getElementById("address").value.trim();
+
+    // ---------- VALIDATION ----------
+
+    if (name === "" || name.toLowerCase() === "none") {
+        alert("Please enter your name");
+        return;
+    }
+
+    if (email === "" || email.toLowerCase() === "none") {
+        alert("Please enter your email");
+        return;
+    }
+
+    if (phone === "" || phone.toLowerCase() === "none") {
+        alert("Please enter your phone number");
+        return;
+    }
+
+    if (phone.length < 10) {
+        alert("Please enter valid phone number");
+        return;
+    }
+
+    if (address === "" || address.toLowerCase() === "none") {
+        alert("Please enter your address");
+        return;
+    }
+
+    // ---------- CASHFREE ----------
+
+    const cashfree = Cashfree({
+        mode: "sandbox"
+    });
+
+    cashfree.checkout({
+        paymentSessionId: "{{ payment_session_id }}",
+        redirectTarget: "_self",
+
+        returnUrl:
+        window.location.origin +
+        "/orderplace?pid={{ request.args.getlist('pid') | join('&pid=') }}"
+    });
+
 }
+
 </script>
 
 </body>

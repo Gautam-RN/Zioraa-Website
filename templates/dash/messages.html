@@ -1,0 +1,244 @@
+<div class="section-wrapper">
+
+    <!-- HEADER -->
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <h2>
+                Customer Messages
+            </h2>
+
+            <p>
+                Review and manage incoming customer inquiries
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- MESSAGE TABLE -->
+    <div class="content-block">
+
+        <div class="block-header">
+
+            <h3>
+                Inbox
+            </h3>
+
+        </div>
+
+
+        {% if msgs %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        Message ID
+                    </th>
+
+                    <th>
+                        Customer
+                    </th>
+
+                    <th>
+                        Message
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+
+                {% for msg in msgs %}
+
+                <tr>
+
+                    <td>
+                        #{{msg.mid}}
+                    </td>
+
+
+                    <td>
+
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+
+                            <span style="font-weight:600;">
+                                {{msg.name}}
+                            </span>
+
+                            <span style="font-size:12px; color:var(--muted);">
+                                {{msg.mail}}
+                            </span>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        <div style="
+                            max-width:420px;
+                            line-height:1.6;
+                            color:#d2d2d2;
+                        ">
+
+                            {{msg.msg}}
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if msg.status %}
+
+                        <span class="badge badge-success">
+
+                            <i class="fa fa-check-circle"></i>
+
+                            Replied
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge badge-warning">
+
+                            <i class="fa fa-clock-o"></i>
+
+                            Pending
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+                    <td>
+
+                        {% if not msg.status %}
+
+                        <form method="POST"
+                              action="/mark-replied" class="ajax-form">
+
+                            <input type="hidden"
+                                   name="mid"
+                                   value="{{msg.mid}}">
+
+                            <button type="submit"
+                                    class="reply-btn">
+
+                                <i class="fa fa-reply"></i>
+
+                                Mark Replied
+
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                        <button class="done-btn" disabled>
+
+                            <i class="fa fa-check"></i>
+
+                            Done
+
+                        </button>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <i class="fa fa-envelope-open"
+               style="
+               font-size:42px;
+               margin-bottom:16px;
+               opacity:.35;
+               ">
+            </i>
+
+            <h3 style="margin-bottom:8px;">
+
+                No Messages Found
+
+            </h3>
+
+            <p>
+
+                Customer inbox is currently empty.
+
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<style>
+
+.reply-btn{
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#7c3aed,#9333ea);
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:.25s;
+}
+
+.reply-btn:hover{
+    transform:translateY(-2px);
+    opacity:.92;
+}
+
+.done-btn{
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    background:#1f2937;
+    color:#9ca3af;
+    font-weight:600;
+    cursor:not-allowed;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+</style>

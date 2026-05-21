@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, render_template_string, redirect, url_for, session, abort, request
+from flask import Blueprint,jsonify, render_template, render_template_string, redirect, url_for, session, abort, request
 from db import get_db
 
 products = Blueprint("products", __name__)
@@ -13,13 +13,18 @@ def alert(msg):
     )
 
 
-def get_prod():
+def get_prod(end, start=0):
     db, cur = get_db()
     if not cur:
         return []
 
     try:
-        cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products ORDER BY sold")
+        cur.execute("""
+            SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection
+            FROM products
+            WHERE pid <= %s AND pid > %s
+            ORDER BY sold
+            """, (end, start))
         rows = cur.fetchall()
         if not rows:
             return []
@@ -65,9 +70,9 @@ def get_prod():
 # ---------- HOME ----------
 @products.route('/')
 def home():
-    data=get_prod()
+    data=get_prod(3)
     db,cur=get_db()
-    cur.execute("Select * from colletion")
+    cur.execute("Select * from collection")
     cltn=cur.fetchall()
     headings=['cid','name','image']
     collection=[]
@@ -87,17 +92,158 @@ def home():
         return render_template("home.html",collections=collection)
     
 # ---------- STORE ----------
+PRODUCTS_PER_PAGE=6
 @products.route('/store')
 def store():
     db, cur = get_db()
     if not cur:
-        db.rollback()
-        return render_template("404.html"), 500
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message="Databse Cursor not found",
+        steps=[
+            "Server side error, please contact our team as soon as possible",
+        ],
+        e="Database Cursor not found"
+    )
 
     try:
-        cur.execute("SELECT Distinct catgy FROM products WHERE stock > 0")
+        page = request.args.get('page', 1, type=int)
+
+        limit = PRODUCTS_PER_PAGE
+        start = (page - 1) * limit
+        end = start + limit
+
+        cur.execute("SELECT DISTINCT catgy FROM products WHERE stock > 0")
         data = cur.fetchall()
-        return render_template("store.html", products=get_prod(),ctgy=data)
+
+        products_list = get_prod(end, start)
+
+        has_more = len(products_list) == PRODUCTS_PER_PAGE
+
+        return render_template(
+            "store.html",
+            products=products_list,
+            ctgy=data,
+            page=page,
+            has_more=has_more
+            )
+
+    finally:
+        db.close()
+
+@products.route('/collections/<int:cid>')
+def collection_pop(cid):
+    db, cur = get_db()
+    if not cur:
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message="Databse Cursor not found",
+        steps=[
+            "Server side error, please contact our team as soon as possible",
+        ],
+        e="Database Cursor not found"
+    )
+
+    try:
+        page = request.args.get('page', 1, type=int)
+        limit = PRODUCTS_PER_PAGE
+        offset = (page - 1) * limit
+
+        cur.execute("SELECT name FROM collection WHERE cid=%s", (cid,))
+        row = cur.fetchone()
+
+        if not row:
+            return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message="Databse table collection, no rows fetched",
+        steps=[
+            "Server side error, please contact our team as soon as possible",
+        ],
+        e="Databse table collection, no rows fetched",
+    )
+
+        name = row[0]
+
+        cur.execute("""
+            SELECT DISTINCT catgy
+            FROM products
+            WHERE stock > 0
+            AND LOWER(TRIM(collection)) = LOWER(TRIM(%s))
+        """, (name,))
+        data = cur.fetchall() or []
+
+        cur.execute("""
+            SELECT pid, prodname, description, stock, price, offer, sold, supplier, catgy, collection
+            FROM products
+            WHERE stock > 0
+            AND LOWER(TRIM(collection)) = LOWER(TRIM(%s))
+            ORDER BY sold DESC
+            LIMIT %s OFFSET %s
+        """, (name, limit, offset))
+
+        rows = cur.fetchall()
+
+        heading = (
+            "pid", "prodname", "decrp", "stock",
+            "price", "offer", "sold", "supplier",
+            "ctgy", "collection"
+        )
+
+        prods = []
+
+        for row in rows:
+            prod = dict(zip(heading, row))
+            prod["prodname"] = prod["prodname"].title()
+
+            cur.execute("SELECT link FROM images WHERE pid=%s", (prod["pid"],))
+            imgs = cur.fetchall() or [("black.png",)]
+            prod["images"] = [f"images/{i[0]}" for i in imgs]
+
+            cur.execute(
+                "SELECT SUM(star), COUNT(*) FROM review WHERE pid=%s",
+                (prod["pid"],)
+            )
+            result = cur.fetchone()
+            if result:
+                s, n = result
+                prod["rating"] = round(s / n) if s and n else 0
+            else:
+                prod["rating"] = 0
+
+            prods.append(prod)
+
+        has_more = len(prods) == limit
+
+        return render_template(
+            "store.html",
+            products=prods,
+            ctgy=data,
+            page=page,
+            has_more=has_more
+        )
+
+    except Exception as e:
+        db.rollback()
+        print("ERROR:", e)
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message=str(e),
+        steps=[
+            "Check the URL for any typing errors",
+            "Refresh the page or try again after a moment",
+            "Navigate back to our homepage to continue browsing",
+            "Clear your browser cache if the issue persists"
+        ],
+        e=e
+    )
 
     finally:
         db.close()
@@ -108,7 +254,16 @@ def product_detail(pid):
     db, cur = get_db()
     if not cur:
         db.rollback()
-        return render_template("404.html"), 500
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message="Databse Cursor not found",
+        steps=[
+            "Server side error, please contact our team as soon as possible",
+        ],
+        e="Database Cursor not found"
+    )
     try:
         cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products WHERE pid=%s", (pid,))
         heading = (
@@ -124,14 +279,14 @@ def product_detail(pid):
         prod["prodname"] = prod["prodname"].title()
 
         cur.execute("SELECT link FROM images WHERE pid=%s", (prod["pid"],))
-        imgs = cur.fetchall() or (("black.png",))
+        imgs = cur.fetchall() or [("black.png",)]
         prod["images"] = ["images/" + i[0] for i in imgs]
 
         cur.execute("Select sum(star),count(*) from review where pid=%s", (prod["pid"],))
         prod['rating']=0
         s,n=cur.fetchone()
-        if s is not None or n!=0:
-            prod['rating']=round(s/n)
+        if s is not None and n != 0:
+            prod['rating'] = round(s/n)
 
         cur.execute('Select "user",comment,star from review where pid=%s',(prod["pid"],))
         data=cur.fetchall()
@@ -146,6 +301,8 @@ def product_detail(pid):
     finally:
         db.close()
 
+
+
 # ---------- ADD TO WISHLIST ----------
 @products.route('/add-wish/<int:pid>')
 def add_wish(pid):
@@ -155,7 +312,16 @@ def add_wish(pid):
     db, cur = get_db()
     if not cur:
         db.rollback()
-        return render_template("404.html"), 500
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message="Databse Cursor not found",
+        steps=[
+            "Server side error, please contact our team as soon as possible",
+        ],
+        e="Database Cursor not found"
+    )
 
     try:
         cur.execute("SELECT wid FROM wish WHERE uid=%s AND pid=%s", (session['uid'], pid))
@@ -177,7 +343,16 @@ def add_cart(pid):
     db, cur = get_db()
     if not cur:
         db.rollback()
-        return render_template("404.html"), 500
+        return render_template(
+        "404.html",
+        code=400,
+        title="An Error Occurred",
+        message="Databse Cursor not found",
+        steps=[
+            "Server side error, please contact our team as soon as possible",
+        ],
+        e="Database Cursor not found"
+    )
 
     try:
         cur.execute("SELECT cid FROM cart WHERE uid=%s AND pid=%s", (session['uid'], pid))
@@ -274,85 +449,164 @@ def msg():
 
     return alert("Message sent!")
 
-@products.route("/collections/<int:cid>")
-def collection(cid):
-    db,cur=get_db()
-    cur.execute("Select * from collection where cid=%s",(cid,))
-    name=cur.fetchone()
-    try:
-        cur.execute("SELECT pid,prodname,description,stock,price,offer,sold,supplier,catgy,collection FROM products where collection=%s",(name,))
-        rows = cur.fetchall()
-        if not rows:
-            return []
 
-        heading = (
-            "pid","prodname","decrp","stock",
-            "price","offer","sold","supplier",
-            "ctgy","collection"
-        )
-
-        prods = []
-
-        for row in rows:
-            prod = dict(zip(heading, row))
-            prod["prodname"] = prod["prodname"].title()
-
-            cur.execute("SELECT link FROM images WHERE pid=%s", (prod["pid"],))
-            imgs = cur.fetchall() or [("black.png",)]
-
-            prod["images"] = [f"images/{i[0]}" for i in imgs]
-
-            cur.execute(
-                "SELECT SUM(star), COUNT(*) FROM review WHERE pid=%s",
-                (prod["pid"],)
-            )
-            s, n = cur.fetchone()
-            prod["rating"] = round(s / n) if s and n else 0
-
-            prods.append(prod)
-    except:
-        prods=None
-    finally:
-        db.close()
-    cur.execute("SELECT Distinct catgy FROM products WHERE stock > 0 and collection=%s",(name,))
-    return render_template("store.html", products=prods,ctgy=cur.fetchall())
 
 #----------customize--------
 @products.route("/custom")
 def custom():
+
     if not login_required():
         return redirect(url_for('auth.login'))
-    db,cur=get_db()
-    cur.execute("Select username, email, phone from users where uid=%s",(session["uid"],))
-    u=cur.fetchone()
-    print(u)
-    cur.execute("Select * from templates")
-    data=cur.fetchall()
-    head=["tid","name","image","color"]
-    temps=[]
-    for i in data:
-        l=list(i)
-        if l[3]:
-            l[3]=(l[3]).split()
-        if not (l[2]):
-            l[2]="images/black.png"
-        else:
-            l[2]="images/"+l[2]
-        temp=dict(zip(head,l))
-        temps.append(temp)
-    db.close()
-    return render_template("custom.html",templates=temps,user=u[0],email=u[1],phone=u[2])
+
+    db, cur = get_db()
+
+    try:
+
+        cur.execute("""
+            SELECT username, email, phone
+            FROM users
+            WHERE uid=%s
+        """, (session["uid"],))
+
+        u = cur.fetchone()
+
+        cur.execute("""
+            SELECT *
+            FROM templates
+        """)
+
+        data = cur.fetchall()
+
+        head = [
+            "tid",
+            "name",
+            "image",
+            "color"
+        ]
+
+        temps = []
+
+        for i in data:
+
+            l = list(i)
+
+            if l[3]:
+                l[3] = l[3].split()
+
+            if not l[2]:
+                l[2] = "images/black.png"
+
+            else:
+                l[2] = "images/" + l[2]
+
+            temp = dict(zip(head, l))
+
+            temps.append(temp)
+
+        return render_template(
+            "custom.html",
+            templates=temps,
+            user=u[0],
+            email=u[1],
+            phone=u[2]
+        )
+
+    finally:
+
+        db.close()
 
 @products.route("/customrequest", methods=["POST"])
 def custom_request():
-    mail=request.form["email"]
-    name=request.form["name"]
-    phone=request.form["phone"]
-    temp=request.form["temp"]
-    det=request.form["details"]
-    tup=(name,mail,phone,temp,det,"Requested")
-    db,cur=get_db()
-    cur.execute("INSERT INTO custom (name, mail, phone, template, description, status) VALUES (%s, %s, %s, %s, %s, %s)",tup)
-    db.commit()
-    db.close()
-    return alert("Custom request!! You can expect an email or call regarding your order!")
+
+    if not login_required():
+        return redirect(url_for('auth.login'))
+
+    db, cur = get_db()
+
+    try:
+
+        template = request.form.get("temp")
+        description = request.form.get("details")
+
+        # USER DETAILS
+        cur.execute("""
+            SELECT
+                username,
+                email,
+                phone
+            FROM users
+            WHERE uid=%s
+        """, (session["uid"],))
+
+        user = cur.fetchone()
+
+        if not user:
+
+            return jsonify({
+                "status": "error",
+                "message": "User not found"
+            })
+
+        username, email, phone = user
+
+        # CLEAN DEFAULTS
+        if not template:
+            template = "Pre-Designed"
+
+        if not description:
+            description = "No description provided"
+
+        # INSERT REQUEST
+        cur.execute("""
+            INSERT INTO custom
+            (
+                date,
+                template,
+                description,
+                status,
+                name,
+                mail,
+                phone
+            )
+
+            VALUES
+            (
+                CURRENT_DATE,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s
+            )
+        """, (
+            template,
+            description,
+            "Pending",
+            username,
+            email,
+            phone
+        ))
+
+        db.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": "Custom request submitted"
+        })
+
+    except Exception as e:
+
+        db.rollback()
+
+        print(e)
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
+
+    finally:
+
+        db.close()
+

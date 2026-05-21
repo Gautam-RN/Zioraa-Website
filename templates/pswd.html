@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Zioraa | Forgot Password</title>
+
+  <link rel="icon" type="image/png"
+        href="{{ url_for('static', filename='images/logo.png') }}">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/forgot_password.css') }}">
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/common.css') }}">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="card">
+
+      <img src="{{ url_for('static', filename='images/logo.png') }}"
+           alt="Zioraa Logo"
+           class="logo">
+
+      <h1>Forgot Password?</h1>
+
+      <p class="subtitle">
+        Enter your email address and we'll send you a password to your email after security checks.
+      </p>
+
+      <form action="{{url_for('auth.email_request')}}" method="POST">
+
+        <div class="input-box">
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          >
+        </div>
+
+        <button type="submit" class="reset-btn">
+          Send Password
+        </button>
+
+      </form>
+
+      <div class="back-login">
+        Remember your password?
+        <a href="/login">Login</a>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

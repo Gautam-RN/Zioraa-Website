@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from flask import Flask, render_template
 from dotenv import load_dotenv
 import os
@@ -23,7 +22,7 @@ app.register_blueprint(auth)
 app.register_blueprint(products)
 app.register_blueprint(payment)  
 app.register_blueprint(dash)  
-"""
+#"""
 @app.errorhandler(404)
 def page_not_found(e):
     db.rollback()
@@ -49,7 +48,11 @@ def internal_error(e):
         code=500,
         title="Internal Server Error",
         message="Oops! Something went wrong on our end. Please try again later.",
-        steps=None,
+        steps=[
+            "Refresh the page or try again after a moment",
+            "If you are using VPN, please try switching it"
+            "Clear your browser cache if the issue persists"
+        ],
         e=e
     ), 500
 
@@ -62,10 +65,15 @@ def handle_exception(e):
         code=getattr(e, 'code', 400),
         title="An Error Occurred",
         message=str(e),
-        steps=None,
+        steps=[
+            "Check the URL for any typing errors",
+            "Refresh the page or try again after a moment",
+            "Navigate back to our homepage to continue browsing",
+            "Clear your browser cache if the issue persists"
+        ],
         e=e
     ), getattr(e, 'code', 400)
-"""
+#"""
 # ---------- RUN ----------
 if __name__ == "__main__":
     app.run(debug=True)

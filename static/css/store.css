@@ -103,16 +103,44 @@
 .product-image {
   height: 300px;
   width: 100%;
-  background-size: cover;
-  background-position: center;
   position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* 🔥 Blurred background layer */
+.product-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: inherit;   /* same image */
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px);
+  transform: scale(1.2);       /* avoid blur edges */
+  z-index: 1;
+}
+
+/* 🔥 Main image (full visible, no crop) */
+.product-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  position: relative;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+}
+
+/* optional dark overlay */
 .product-image::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.15));
+  background: rgba(0,0,0,0.3);
+  z-index: 1;
 }
 
 .product-content {
@@ -179,4 +207,39 @@
     grid-template-columns: 1fr;
     padding: 30px 20px;
   }
+}
+.pagination {
+  display: flex;
+  justify-content: center;   /* center horizontally */
+  align-items: center;       /* center vertically */
+  gap: 15px;                 /* spacing between items */
+  margin: 40px 0;
+}
+
+/* Page number */
+.page-number {
+  font-size: 18px;
+  color: #ccc;
+  font-weight: 500;
+}
+
+/* Buttons */
+.page-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;             /* IMPORTANT */
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+/* Hover */
+.page-btn:hover {
+  background: white;
+  color: black;
 }

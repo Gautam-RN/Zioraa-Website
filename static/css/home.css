@@ -38,9 +38,9 @@ header {
 
 /* TOP ROW */
 header .flex:first-child {
-  justify-content:center;
-  width: 75vw;
-  margin-left:10vw
+  width: 100%;
+  margin: 0;
+  padding: 0 10px;
 }
 
 /* LOGO */
@@ -153,141 +153,150 @@ nav a:hover {
   font-size: 18px;
   color: #d0d0d0;
 }
-
-/* ---------- PRODUCTS ---------- */
-.featured {
-  padding: 90px 60px;
+.collections {
+  padding: 120px 20px;
+  max-width: 1400px;
+  margin: auto;
   text-align: center;
 }
 
-.featured h2 {
-  font-size: 34px;
-  margin-bottom: 25px;
+.collections h2 {
+  font-size: 48px;
+  margin-bottom: 50px;
   background: var(--gold);
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 35px;
-}
-
-.product-card {
-  background: linear-gradient(180deg, #181818, #101010);
-  border-radius: 16px;
-  border: 1px solid var(--border-soft);
+/* SLIDER */
+.collection-slider {
+  position: relative;
   overflow: hidden;
-  transition: 0.3s;
 }
 
-.product-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 30px 60px rgba(212,175,55,0.15);
+/* TRACK */
+.collection-track {
+  display: flex;
+  gap: 30px;
+  transition: transform 0.5s ease;
+  will-change: transform;
 }
 
-.product-image {
-  height: 230px;
+/* CARD */
+.collection-card {
+  flex: 0 0 520px;   /* 🔥 bigger (was 420px) */
+  aspect-ratio: 16/10;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, #181818, #101010);
+  border: 1px solid var(--border-soft);
+  transition: 0.4s;
+
+  transform: scale(0.9);
+  opacity: 0.6;
+}
+
+/* ACTIVE (CENTER CARD) */
+.collection-card.active {
+  transform: scale(1.12);  /* 🔥 stronger highlight */
+  opacity: 1;
+  z-index: 3;
+  box-shadow: 0 50px 100px rgba(212,175,55,0.35);
+}
+
+.collection-card:hover {
+  transform: scale(1.08);
+}
+
+/* IMAGE */
+.collection-card img {
   width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
-.product-content {
-  padding: 24px;
-}
-
-.price {
-  margin: 15px 0;
-  font-weight: 600;
-  background: var(--gold);
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* BUTTON */
-.btn {
-  padding: 10px 22px;
-  border-radius: 22px;
-  border: 1px solid var(--border-soft);
-  background: transparent;
+/* TEXT */
+.collection-overlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
   color: var(--silver);
-  cursor: pointer;
-  transition: 0.3s;
+  font-weight: 600;
+  font-size: 22px;
+  padding: 22px;
 }
 
-.btn:hover {
-  background: var(--gold);
-  color: #000;
-}
-
-.store-btn {
-  padding: 12px 30px;
-  border-radius: 25px;
-  background: var(--gold);
-  color: #000;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* Hide mobile by default */
-.mob {
-  display: none;
-}
-
-/* Show mobile, hide desktop on small screens */
-@media (max-width: 768px) {
-  .lap {
-    display: none;
-  }
-
-  .mob {
-    display: block;
-  }
-}
-
-.slider {
-  position: relative;
-  overflow: hidden;
-  max-width: 320px;
-  margin: auto;
-}
-
-.slider .arr {
+/* BUTTONS */
+.c-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  border-radius: 50%;
-  backdrop-filter: blur(6px);
+
   background: rgba(0,0,0,0.6);
-  border: none;
-  color: white;
-  padding: 10px 14px;
+  border: 1px solid var(--border-soft);
+  color: var(--silver);
+  padding: 12px 16px;
   cursor: pointer;
+  border-radius: 50%;
 }
 
-.prev {
-  left: 10px;
+.c-btn:hover {
+  background: var(--gold);
+  color: #000;
 }
 
-.next {
-  right: 10px;
+.prev { left: 10px; }
+.next { right: 10px; }
+
+/* LINK RESET */
+.collection-link {
+  text-decoration: none;
+  color: inherit;
 }
 
-.slider .arr:hover {
-  background: rgba(0,0,0,0.85);
-}
-.slides {
-  display: flex;
-  transition: transform 0.4s ease-in-out;
+/* RESPONSIVE */
+/* TABLET */
+@media (max-width: 1024px) {
+  .collection-card {
+    flex: 0 0 400px;
+  }
 }
 
-.slide {
-  min-width: 100%;
+@media (max-width: 768px) {
+
+  .collection-slider {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 15px;
+  }
+
+  .collection-track {
+    display: flex;
+    gap: 16px;
+
+    transform: none !important; /* kill JS transform */
+    width: max-content;         /* 🔥 allow horizontal scroll */
+  }
+
+  .collection-card {
+    flex: 0 0 80vw;   /* 🔥 proper big cards */
+    max-width: 80vw;
+
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .collection-card.active {
+    transform: none !important;
+  }
+
+  .c-btn {
+    display: none;
+  }
 }
-/* ---------- CONTACT ---------- */
-/* ---------- CONTACT ---------- */
 .contact {
   padding: 90px 60px;
   background: #0f0f0f;
@@ -477,12 +486,12 @@ footer {
     padding: 60px 20px;
   }
 }
-.collections {
+.featured {
   padding: 90px 60px;
   text-align: center;
 }
 
-.collections h2 {
+.featured h2 {
   font-size: 34px;
   margin-bottom: 25px;
   background: var(--gold);
@@ -490,97 +499,160 @@ footer {
   -webkit-text-fill-color: transparent;
 }
 
-/* SLIDER */
-.collection-slider {
-  position: relative;
-  overflow: hidden;
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 35px;
 }
 
-/* TRACK */
-.collection-track {
-  display: flex;
-  gap: 30px;
-  transition: transform 0.4s ease;
-}
-
-/* CARD */
-.collection-card {
-  min-width: 35%;
-  height: 260px;
-  border-radius: 16px;
-  overflow: hidden;
-  position: relative;
-
+.product-card {
   background: linear-gradient(180deg, #181818, #101010);
+  border-radius: 16px;
   border: 1px solid var(--border-soft);
+  overflow: hidden;
   transition: 0.3s;
 }
 
-.collection-card:hover {
+.product-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 30px 60px rgba(212,175,55,0.15);
 }
 
-/* IMAGE */
-.collection-card img {
+
+.product-image {
+  height: 300px;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.85;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* OVERLAY TEXT */
-.collection-overlay {
+/* 🔥 Blurred background layer */
+.product-image::before {
+  content: "";
   position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 15px;
+  inset: 0;
+  background-image: inherit;   /* same image */
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px);
+  transform: scale(1.2);       /* avoid blur edges */
+  z-index: 1;
+}
 
-  background: linear-gradient(transparent, rgba(0,0,0,0.9));
-  color: var(--silver);
-  font-size: 18px;
+/* 🔥 Main image (full visible, no crop) */
+.product-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  position: relative;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+}
+
+/* optional dark overlay */
+.product-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1;
+}
+
+
+.product-content {
+  padding: 24px;
+}
+
+.price {
+  margin: 15px 0;
   font-weight: 600;
+  background: var(--gold);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* BUTTONS */
-.c-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-
-  background: rgba(0,0,0,0.6);
+/* BUTTON */
+.btn {
+  padding: 10px 22px;
+  border-radius: 22px;
   border: 1px solid var(--border-soft);
+  background: transparent;
   color: var(--silver);
-  padding: 10px 14px;
   cursor: pointer;
-  border-radius: 50%;
+  transition: 0.3s;
 }
 
-.c-btn:hover {
+.btn:hover {
   background: var(--gold);
   color: #000;
 }
 
-/* POSITION */
-.prev { left: 10px; }
-.next { right: 10px; }
-
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  .collection-card {
-    min-width: 33.33%;
-  }
+.store-btn {
+  padding: 12px 30px;
+  border-radius: 25px;
+  background: var(--gold);
+  color: #000;
+  cursor: pointer;
+  font-size: 14px;
 }
 
+/* Hide mobile by default */
+.mob {
+  display: none;
+}
+
+/* Show mobile, hide desktop on small screens */
 @media (max-width: 768px) {
-  .collection-card {
-    min-width: 80%;
+  .lap {
+    display: none;
+  }
+
+  .mob {
+    display: block;
   }
 }
 
-.collection-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
+.slider {
+  position: relative;
+  overflow: hidden;
+  max-width: 320px;
+  margin: auto;
+}
+
+.slider .arr {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  border-radius: 50%;
+  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.prev {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
+
+.slider .arr:hover {
+  background: rgba(0,0,0,0.85);
+}
+.slides {
+  display: flex;
+  transition: transform 0.4s ease-in-out;
+}
+
+.slide {
+  min-width: 100%;
 }

@@ -1,0 +1,208 @@
+<div class="section-wrapper">
+
+    <!-- HEADER -->
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <h2>
+                Top Selling Products
+            </h2>
+
+            <p>
+                Track your best-performing and highest-selling products
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCT TABLE -->
+    <div class="content-block">
+
+        <div class="block-header">
+
+            <h3>
+                Best Sellers
+            </h3>
+
+
+        </div>
+
+
+        {% if highs %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        Product ID
+                    </th>
+
+                    <th>
+                        Product
+                    </th>
+
+                    <th>
+                        Price
+                    </th>
+
+                    <th>
+                        Offer
+                    </th>
+
+                    <th>
+                        Performance
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+
+                {% for high in highs %}
+
+                <tr>
+
+                    <!-- PRODUCT ID -->
+                    <td>
+
+                        #{{high.pid}}
+
+                    </td>
+
+
+                    <!-- PRODUCT -->
+                    <td>
+
+                        <div style="
+                            font-weight:600;
+                            max-width:240px;
+                            line-height:1.6;
+                        ">
+
+                            {{high.name}}
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- PRICE -->
+                    <td>
+
+                        <span style="
+                            font-weight:700;
+                            color:#f5d27a;
+                        ">
+
+                            ₹{{high.price}}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- OFFER -->
+                    <td>
+
+                        {% if high.offer %}
+
+                        <span class="badge badge-warning">
+
+                            <i class="fa fa-tag"></i>
+
+                            {{high.offer}}
+
+                        </span>
+
+                        {% else %}
+
+                        <span style="color:var(--muted);">
+
+                            No Offer
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- PERFORMANCE -->
+                    <td>
+
+                        <span class="badge badge-success">
+
+                            <i class="fa fa-line-chart"></i>
+
+                            Top Seller
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- ACTION -->
+                    <td>
+
+                        <a href="product/{{high.pid}}"
+                           style="text-decoration:none;">
+
+                            <button class="btn-secondary">
+
+                                <i class="fa fa-eye"></i>
+
+                                View
+
+                            </button>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <i class="fa fa-cubes"
+               style="
+               font-size:42px;
+               margin-bottom:16px;
+               opacity:.35;
+               ">
+            </i>
+
+            <h3 style="margin-bottom:8px;">
+
+                No Products Found
+
+            </h3>
+
+            <p>
+
+                Top selling products are currently unavailable.
+
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>

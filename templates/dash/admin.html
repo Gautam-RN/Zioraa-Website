@@ -1,0 +1,54 @@
+<div class="section-wrapper">
+    <!-- HEADER -->
+    <div class="section-header">
+        <div class="section-title">
+            <h2>Admin Management</h2>
+            <p>Manage administrator access and permissions</p>
+        </div>
+    </div>
+    <!-- ADMIN TABLE -->
+    <div class="content-block">
+        <div class="block-header">
+            <h3>Current Admins</h3>
+        </div>
+        {% if admins %}
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                </tr>
+                {% for admin in admins %}
+                <tr>
+                    <td>#{{admin.uid}}</td>
+                    <td>{{admin.name}}</td>
+                    <td>{{admin.email}}</td>
+                    <td>{{admin.phone}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fa fa-users" style="font-size:40px; margin-bottom:15px; opacity:.4;"></i>
+            <h3 style="margin-bottom:8px;">No Admins Found</h3>
+            <p>There are currently no administrators added.</p>
+        </div>
+        {% endif %}
+    </div>
+    <!-- ADD ADMIN -->
+    <div class="content-block">
+        <div class="block-header">
+            <h3>Add New Admin</h3>
+        </div>
+        <form action="/add-admin" method="POST" class="ajax-form">
+            <input type="email" id="email" name="email" placeholder="Enter user email..." required>
+            <button type="submit">
+                <i class="fa fa-plus"></i>
+                Make Admin
+            </button>
+        </form>
+    </div>
+</div>

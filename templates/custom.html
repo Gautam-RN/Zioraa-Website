@@ -65,7 +65,7 @@
   <div class="custom-form-section">
     <h2 style="text-align:center;">Request Custom Design</h2>
 
-    <form action="{{ url_for('products.custom_request') }}" method="POST" enctype="multipart/form-data" class="custom-form">
+    <form id="customForm" action="{{ url_for('products.custom_request') }}" method="POST" enctype="multipart/form-data" class="custom-form">
 
       <input type="text" name="name" placeholder="Your Name" value="{{user}}" required>
       <input type="email" name="email" placeholder="Your Email" value="{{email}}" required>
@@ -82,6 +82,36 @@
 function selectDesign(name) {
   document.getElementById("selectedDesign").value = name;
 }
+
+document
+.getElementById("customForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    let formData = new FormData(this);
+
+    const response = await fetch("/customrequest", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if(data.status === "success"){
+
+        alert("Custom request submitted successfully");
+
+        window.location.href = "/";
+
+    }else{
+
+        alert(data.message);
+
+    }
+
+});
+
 </script>
 
 </body>

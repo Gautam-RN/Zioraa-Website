@@ -46,54 +46,54 @@
 
   <!-- IMAGE GALLERY -->
   <div class="gallery">
-    <div class="main-image" id="mainImage"></div>
+    <div class="main-image"style="--bg:url('{{ url_for('static', filename=product.images[0]) }}')">
+      <img src="{{ url_for('static', filename=product.images[0]) }}">
+    </div>
 
     <div class="thumbnail-row">
       {% for img in product.images %}
-  <div
-    class="thumb"
-    style="background-image: url('{{ url_for('static', filename=img) }}');"
-    onclick="changeImage('{{ url_for('static', filename=img) }}')">
-  </div>
-{% endfor %}
+      <div class="thumb" style="--bg:url('{{ url_for('static', filename=img) }}')" onclick="changeImage('{{ url_for('static', filename=img) }}')">
+        <img src="{{ url_for('static', filename=img) }}">
+      </div>
+      {% endfor %}
     </div>
   </div>
 
   <!-- PRODUCT INFO -->
   <div class="product-info">
-    <h1>{{ product.name }}</h1>
 
-    <div class="rating">
-      {{ '★' * (product.rating|round(0,'common')|int) + '☆' * (5 - (product.rating|round(0,'common')|int)) }}
-      <span>({{ product.rating }}/5)</span>
-    </div>
+  <h1 class="title">{{ product.prodname }}</h1>
 
-    <div class="price-box">
-      {%if product.price==product.offer%}
-      <div class="original-price-only">₹{{ product.price }}</div>
-      {%elif product.price!=product.offer%}
-      <div class="original-price">₹{{ product.price }}</div>
-      <div class="offer-price">₹{{ product.offer }} Offer Price!!</div>
-      {%endif%}
-    </div>
+  <div class="rating">
+    {{ '★' * (product.rating|int) + '☆' * (5 - (product.rating|int)) }}
+    <span class="rating-value">{{ product.rating }}/5</span>
+  </div>
 
-    <div class="description">
-      {{ product.decrp }}
-    </div>
+  <div class="price-box">
+    {% if product.price == product.offer %}
+      <div class="price-main">₹{{ product.price }}</div>
+    {% else %}
+      <div class="price-old">₹{{ product.price }}</div>
+      <div class="price-offer">₹{{ product.offer }}</div>
+    {% endif %}
+  </div>
 
-    <div class="meta">
-      <div>Supplier: <strong>{{ product.supplier }}</strong></div>
-      <div class="stock in">Stock: {{ product.stock }} available</div>
-    </div>
+  <p class="description">
+    {{ product.decrp }}
+  </p>
 
-    
-    <div class="buy-actions">  
-    </div>
-    <div class="buy-actions">
-      <a class="btn primary" href="{{url_for('payment.checkout', pid=product.pid)}}">Buy Now</a>
-      <a class="btn" href="{{url_for('products.add_cart', pid=product.pid)}}">Add to Cart</a>
-      <a class="btn" href="{{url_for('products.add_wish', pid=product.pid)}}">Wishlist</a>
-    </div>
+  <div class="meta">
+    <div><span>Supplier</span><strong>{{ product.supplier }}</strong></div>
+    <div><span>Stock</span><strong>{{ product.stock }}</strong></div>
+  </div>
+
+  <div class="buy-actions">
+    <a class="btn primary" href="{{url_for('payment.checkout', pid=product.pid)}}">Buy Now</a>
+    <a class="btn" href="{{url_for('products.add_cart', pid=product.pid)}}">Cart</a>
+    <a class="btn" href="{{url_for('products.add_wish', pid=product.pid)}}">Wishlist</a>
+  </div>
+
+</div>
   </div>
 
 <!-- REVIEWS -->
@@ -148,12 +148,12 @@
 </section>
 
 <script>
-const main = document.getElementById("mainImage");
-main.style.backgroundImage =
-"url('{{ url_for('static', filename=product.images[0]) }}')";
+const mainImg = document.querySelector(".main-image img");
+const mainContainer = document.querySelector(".main-image");
 
 function changeImage(src) {
-  main.style.backgroundImage = `url('${src}')`;
+  mainImg.src = src;
+  mainContainer.style.setProperty('--bg', `url('${src}')`);
 }
 </script>
   <script src="{{ url_for('static', filename='js/common.js')}}"></script>

@@ -108,3 +108,22 @@
       color: #ffd700;
       border-bottom: 2px solid #ffd700;
     }
+
+.forgot-password{
+  width: 100%;
+  text-align: right;
+  margin-top: -5px;
+  margin-bottom: 15px;
+}
+
+.forgot-password a{
+  color: #ffd700;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.forgot-password a:hover{
+  text-decoration: underline;
+  opacity: 0.8;
+}

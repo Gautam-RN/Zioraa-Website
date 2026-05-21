@@ -1,0 +1,261 @@
+<div class="section-wrapper">
+
+    <!-- TOP HEADER -->
+    <div class="section-header modern-header">
+
+        <div class="section-title">
+
+            <div class="title-icon">
+                <i class="fa fa-layer-group"></i>
+            </div>
+
+            <div>
+
+                <h2>
+                    Order Requests
+                </h2>
+
+                <p>
+                    Manage and monitor customer customization requests efficiently
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MAIN CONTENT -->
+    <div class="content-block modern-block">
+
+
+        <!-- BLOCK HEADER -->
+        <div class="block-header modern-block-header">
+
+            <div>
+
+                <h3>
+                    Pending Requests
+                </h3>
+
+                <span class="sub-text">
+                    {{ customs|length if customs else 0 }} Requests Found
+                </span>
+
+            </div>
+
+            {% if customs %}
+
+            <button type="submit"
+                    form="customForm"
+                    class="save-btn modern-save-btn">
+
+                <i class="fa fa-save"></i>
+                Save Changes
+
+            </button>
+
+            {% endif %}
+
+        </div>
+
+
+
+        {% if customs %}
+
+        <!-- FORM -->
+        <form method="POST"
+              action="/update-custom-status"
+              class="ajax-form"
+              id="customForm">
+
+
+            <div class="table-wrapper modern-table-wrapper">
+
+                <table class="modern-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Template</th>
+                            <th>Description</th>
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for custom in customs %}
+
+                        <tr>
+
+                            <!-- ID -->
+                            <td>
+
+                                <div class="request-id">
+
+                                    #{{ custom.cid }}
+
+                                </div>
+
+                                <input type="hidden"
+                                       name="cid"
+                                       value="{{ custom.cid }}">
+
+                            </td>
+
+
+
+                            <!-- CUSTOMER -->
+                            <td>
+
+                                <div class="customer-box">
+
+                                    <div class="customer-avatar">
+
+                                        {{ custom.name[0] if custom.name else "U" }}
+
+                                    </div>
+
+                                    <div class="customer-info">
+
+                                        <span class="customer-name">
+
+                                            {{ custom.name }}
+
+                                        </span>
+
+                                        <span class="customer-meta">
+
+                                            {{ custom.mail }}
+
+                                        </span>
+
+                                        <span class="customer-meta">
+
+                                            {{ custom.phone }}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- TEMPLATE -->
+                            <td>
+
+                                <span class="modern-badge">
+
+                                    <i class="fa fa-palette"></i>
+
+                                    {{ custom.temp }}
+
+                                </span>
+
+                            </td>
+
+
+
+                            <!-- DESCRIPTION -->
+                            <td>
+
+                                <div class="desc-box">
+
+                                    {{ custom.desc }}
+
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- STATUS -->
+                            <td>
+
+                                <select name="status_{{ custom.cid }}"
+                                        class="status-select">
+
+                                    <option value="pending"
+                                        {% if custom.status == 'pending' %}
+                                        selected
+                                        {% endif %}>
+                                        Pending
+                                    </option>
+
+                                    <option value="processing"
+                                        {% if custom.status == 'processing' %}
+                                        selected
+                                        {% endif %}>
+                                        Processing
+                                    </option>
+
+                                    <option value="completed"
+                                        {% if custom.status == 'completed' %}
+                                        selected
+                                        {% endif %}>
+                                        Completed
+                                    </option>
+
+                                    <option value="cancelled"
+                                        {% if custom.status == 'cancelled' %}
+                                        selected
+                                        {% endif %}>
+                                        Cancelled
+                                    </option>
+
+                                </select>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </form>
+
+
+        {% else %}
+
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state modern-empty-state">
+
+            <div class="empty-icon">
+
+                <i class="fa fa-box-open"></i>
+
+            </div>
+
+            <h3>
+                No Pending Requests
+            </h3>
+
+            <p>
+                Everything looks clean. No customization requests are waiting right now.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
