@@ -19,10 +19,10 @@ Cashfree.XClientId = os.getenv("CASHFREE_APP_ID")
 Cashfree.XClientSecret = os.getenv("CASHFREE_SECRET_KEY")
 
 # Sandbox
-Cashfree.XEnvironment = Cashfree.XSandbox
+#Cashfree.XEnvironment = Cashfree.XSandbox
 
 # Production
-# Cashfree.XEnvironment = Cashfree.XProduction
+Cashfree.XEnvironment = Cashfree.XProduction
 
 x_api_version = "2023-08-01"
 
@@ -103,7 +103,8 @@ def create_cashfree_order(amount, uid, phone):
             order_amount=float(amount),
             order_currency="INR",
             order_id=order_id,
-            customer_details=customer_details
+            customer_details=customer_details,
+            order_meta={"return_url": f"https://zioraa.store/orderplace?order_id={order_id}"}
         )
 
         # WORKING VERSION
