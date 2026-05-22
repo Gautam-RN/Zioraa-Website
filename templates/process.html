@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Processing Payment</title>
+
+</head>
+
+<body>
+
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
+<script>
+const cashfree = Cashfree({ 
+    //mode: "sandbox" });
+    mode: "production" });
+
+cashfree.checkout({
+    paymentSessionId: "{{ payment_session_id }}",
+    redirectTarget: "_self",
+    returnUrl: window.location.origin + "/orderplace"
+});
+</script>
+
+</body>
+</html>

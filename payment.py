@@ -87,6 +87,11 @@ def create_cashfree_order(amount, uid, phone):
 
     try:
 
+        amount = float(amount)
+
+        if amount < 1:
+            amount = 1
+
         order_id = f"ORDER_{uid}_{int(time.time())}"
 
         customer_phone = str(phone).strip()
@@ -100,14 +105,12 @@ def create_cashfree_order(amount, uid, phone):
         )
 
         create_order_request = CreateOrderRequest(
-            order_amount=float(amount),
+            order_amount=int(round(amount)),
             order_currency="INR",
             order_id=order_id,
-            customer_details=customer_details,
-            order_meta={"return_url": f"https://zioraa.store/orderplace?order_id={order_id}"}
+            customer_details=customer_details
         )
 
-        # WORKING VERSION
         response = Cashfree().PGCreateOrder(
             x_api_version,
             create_order_request,
@@ -126,6 +129,7 @@ def create_cashfree_order(amount, uid, phone):
             "success": False,
             "message": str(e)
         }
+
 # ---------------- INSERT CUSTOM ORDER ----------------
 
 def insert_custom_order(db, cur, data, pids):
@@ -268,32 +272,11 @@ def checkout():
                 e="Checkout data not found"
             )
 
-        # CREATE CASHFREE ORDER
-        payment_data = create_cashfree_order(
-            data["total"],
-            session['uid'],
-            data["phone"]
-        )
-
-        if not payment_data["success"]:
-
-            return render_template(
-                "404.html",
-                code=400,
-                title="Payment Error",
-                message=payment_data["message"],
-                steps=[
-                    "Please try again later"
-                ],
-                e=payment_data["message"]
-            )
 
         return render_template(
             "checkout.html",
             data=data,
-            total=data["total"],
-            payment_session_id=payment_data["data"]["payment_session_id"],
-            order_id=payment_data["data"]["order_id"]
+            total=data["total"]
         )
 
     except Exception as e:
@@ -321,120 +304,81 @@ def checkout():
 # ---------------- PAYMENT SUCCESS ----------------
 
 @payment.route("/orderplace")
-def order():
+def orderplace():
 
     db, cur = get_db()
 
-    pids = request.args.getlist("pid")
-
     try:
+        pids = session.get("pids")
+        user = session.get("checkout_user")
 
-        data = get_checkout_data(
-            cur,
-            session['uid'],
-            pids
-        )
+        if not pids or not user:
+            return "Session expired", 400
+
+        data = get_checkout_data(cur, session["uid"], pids)
 
         if not data:
+            return "Invalid order", 400
 
-            return render_template(
-                "404.html",
-                code=400,
-                title="Checkout Error",
-                message="Checkout data not found",
-                steps=[
-                    "Please try again later"
-                ],
-                e="Checkout data not found"
-            )
+        # OPTIONAL: verify payment using Cashfree verify API here (recommended)
 
-        # INSERT CUSTOM
-        custom_success = insert_custom_order(
-            db,
-            cur,
-            data,
-            pids
-        )
+        insert_custom_order(db, cur, data, pids)
+        insert_orders(db, cur, session["uid"], data["products"])
+        insert_transaction(db, cur, data["total"], session["uid"])
 
-        if not custom_success:
+        # clear session
+        session.pop("pids", None)
+        session.pop("checkout_user", None)
 
-            return render_template(
-                "404.html",
-                code=400,
-                title="Database Error",
-                message="Unable to save custom order",
-                steps=[
-                    "Please try again later"
-                ],
-                e="Custom order insert failed"
-            )
+        return render_template("order_success.html")
 
-        # INSERT ORDERS
-        order_success = insert_orders(
-            db,
-            cur,
-            session['uid'],
-            data["products"]
-        )
+    finally:
+        db.close()
 
-        if not order_success:
 
-            return render_template(
-                "404.html",
-                code=400,
-                title="Order Error",
-                message="Unable to save order",
-                steps=[
-                    "Please try again later"
-                ],
-                e="Order insert failed"
-            )
+@payment.route("/process", methods=["POST"])
+def process():
 
-        # INSERT TRANSACTION
-        transaction_success = insert_transaction(
-            db,
-            cur,
+    db, cur = get_db()
+
+    try:
+        name = request.form.get("name")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        address = request.form.get("address")
+
+        pids = request.form.getlist("pid")
+
+        if not pids:
+            return "No products selected", 400
+
+        # 🔥 STORE FOR NEXT STEP (IMPORTANT FIX)
+        session["pids"] = pids
+        session["checkout_user"] = {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "address": address
+        }
+
+        data = get_checkout_data(cur, session["uid"], pids)
+
+        if not data:
+            return "Checkout error", 400
+
+        payment_data = create_cashfree_order(
             data["total"],
-            session['uid']
+            session["uid"],
+            phone
         )
 
-        if not transaction_success:
-
-            return render_template(
-                "404.html",
-                code=400,
-                title="Transaction Error",
-                message="Unable to save transaction",
-                steps=[
-                    "Please try again later"
-                ],
-                e="Transaction insert failed"
-            )
-
-        # SUCCESS PAGE
-        return render_template(
-            "order_success.html"
-        )
-
-    except Exception as e:
-
-        db.rollback()
-
-        print(e)
+        if not payment_data["success"]:
+            return payment_data["message"], 400
 
         return render_template(
-            "404.html",
-            code=400,
-            title="An Error Occurred",
-            message=str(e),
-            steps=[
-                "Refresh the page and try again",
-                "Check your payment status"
-            ],
-            e=e
+            "process.html",
+            payment_session_id=payment_data["data"]["payment_session_id"]
         )
 
     finally:
-
         db.close()
-

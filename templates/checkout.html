@@ -22,10 +22,12 @@
 
     <h2>Checkout</h2>
 
-    <form id="checkoutForm">
+    <form id="checkoutForm" method="POST" action="/process">
 
         <!-- USER DETAILS -->
-
+        {% for pid in request.args.getlist('pid') %}
+        <input type="hidden" name="pid" value="{{ pid }}">
+        {% endfor %}
         <input
             type="text"
             id="name"
@@ -98,73 +100,53 @@
 
         <button
             type="button"
-            onclick="payNow()"
-            class="btn"
-            style="display:block;
-                   margin:0 auto;
-                   width:120px;
-                   text-align:center;">
-
+            onclick="payNow(); this.disabled=true;"
+            class="btn">
             Proceed
-
         </button>
 
     </form>
 
 </div>
 <script>
+let isPaying = false;
 
 async function payNow() {
+
+    if (isPaying) return;
+    isPaying = true;
 
     let name = document.getElementById("name").value.trim();
     let email = document.getElementById("email").value.trim();
     let phone = document.getElementById("phone").value.trim();
     let address = document.getElementById("address").value.trim();
 
-    // ---------- VALIDATION ----------
-
     if (name === "" || name.toLowerCase() === "none") {
         alert("Please enter your name");
+        isPaying = false;
         return;
     }
 
     if (email === "" || email.toLowerCase() === "none") {
         alert("Please enter your email");
+        isPaying = false;
         return;
     }
 
-    if (phone === "" || phone.toLowerCase() === "none") {
-        alert("Please enter your phone number");
-        return;
-    }
-
-    if (phone.length < 10) {
+    if (phone === "" || phone.length < 10) {
         alert("Please enter valid phone number");
+        isPaying = false;
         return;
     }
 
     if (address === "" || address.toLowerCase() === "none") {
         alert("Please enter your address");
+        isPaying = false;
         return;
     }
 
-    // ---------- CASHFREE ----------
-
-    const cashfree = Cashfree({
-        mode: "production"
-    });
-
-    cashfree.checkout({
-        paymentSessionId: "{{ payment_session_id }}",
-        redirectTarget: "_self",
-
-        returnUrl:
-        window.location.origin +
-        "/orderplace?pid={{ request.args.getlist('pid') | join('&pid=') }}"
-    });
-
+    document.getElementById("checkoutForm").submit();
 }
-
 </script>
 
 </body>
