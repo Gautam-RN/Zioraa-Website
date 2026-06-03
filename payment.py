@@ -19,13 +19,13 @@ from cashfree_pg.models.create_order_request import CreateOrderRequest
 from cashfree_pg.models.customer_details import CustomerDetails
 
 Cashfree.XClientId = os.getenv("CASHFREE_APP_ID")
-Cashfree.XClientSecret = os.getenv("CASHFREE_SECRET_KEY")
+#Cashfree.XClientSecret = os.getenv("CASHFREE_SECRET_KEY")
 
 # Sandbox
 Cashfree.XEnvironment = Cashfree.XSandbox
 
 # Production
-#Cashfree.XEnvironment = Cashfree.XProduction
+Cashfree.XEnvironment = Cashfree.XProduction
 
 x_api_version = "2023-08-01"
 
