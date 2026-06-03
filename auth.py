@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, sessio
 
 auth = Blueprint("auth", __name__)
 
-from db import get_db
+from Versions.NEW.db import get_db
 
 db,cur=get_db()
 

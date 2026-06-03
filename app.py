@@ -2,14 +2,14 @@ from flask import Flask, render_template
 from dotenv import load_dotenv
 import os
 
-from auth import auth
-from dash import dash
-from products import products
-from payment import payment  
+from Versions.NEW.auth import auth
+from Versions.NEW.dash import dash
+from Versions.NEW.products import products
+from Versions.NEW.payment import payment  
 
 load_dotenv()
 
-from db import get_db
+from Versions.NEW.db import get_db
 
 db,cur=get_db()
 
