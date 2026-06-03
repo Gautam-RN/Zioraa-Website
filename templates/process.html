@@ -10,7 +10,7 @@
 <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
 <script>
-const cashfree = Cashfree({ mode: "sandbox" });
+const cashfree = Cashfree({ mode: "production" });
 
 cashfree.checkout({
     paymentSessionId: "{{ payment_session_id }}",
