@@ -9,6 +9,9 @@ load_dotenv()
 
 payment = Blueprint("payment", __name__)
 
+def login_required():
+    return 'uid' in session
+
 # ---------------- CASHFREE ----------------
 
 from cashfree_pg.api_client import Cashfree
