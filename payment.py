@@ -239,6 +239,8 @@ def insert_transaction(db, cur, amount, uid):
 
 @payment.route("/checkout/")
 def checkout():
+    if not login_required():
+        return render_template("login.html")    
 
     db, cur = get_db()
 
