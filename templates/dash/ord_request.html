@@ -2,75 +2,145 @@
 
     <!-- TOP HEADER -->
     <div class="section-header modern-header">
-
         <div class="section-title">
-
             <div class="title-icon">
                 <i class="fa fa-layer-group"></i>
             </div>
-
             <div>
+                <h2>Order Requests</h2>
+                <p>Manage and monitor customer customization requests efficiently</p>
+            </div>
+        </div>
+    </div>
 
-                <h2>
-                    Order Requests
-                </h2>
+    <!-- SINGLE FORM FOR BOTH TABLES -->
+    <form method="POST"
+          action="/update-requests"
+          class="ajax-form"
+          id="requestForm">
 
-                <p>
-                    Manage and monitor customer customization requests efficiently
-                </p>
+        <!-- ========================================= -->
+        <!-- ORDERS -->
+        <!-- ========================================= -->
+
+        <div class="content-block modern-block">
+
+            <div class="block-header modern-block-header">
+                <div>
+                    <h3>Orders</h3>
+                    <span class="sub-text">
+                        {{ orders|length if orders else 0 }} Orders Found
+                    </span>
+                </div>
+            </div>
+            {%if orderss%}
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for order in orders %}
+
+                        <tr>
+
+                            <td>
+                                #{{ order.oid }}
+
+                                <input type="hidden"
+                                       name="oid"
+                                       value="{{ order.oid }}">
+                            </td>
+
+                            <td>{{ order.name }}</td>
+
+                            <td>
+                                <div style="max-width:220px; line-height:1.5;">
+                                    {{ order.product }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <span style="font-weight:700;color:#f5d27a;">
+                                    ₹{{ order.price }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <input type="text"
+                                       name="pay_{{ order.oid }}"
+                                       value="{{ order.pay }}"
+                                       class="form-input">
+                            </td>
+
+                            <td>
+                                <input type="text"
+                                       name="order_status_{{ order.oid }}"
+                                       value="{{ order.status }}"
+                                       class="form-input">
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
 
             </div>
 
         </div>
+        {% else %}
 
-    </div>
+            <div class="empty-state modern-empty-state">
 
+                <div class="empty-icon">
+                    <i class="fa fa-box-open"></i>
+                </div>
 
+                <h3>No Pending Orders</h3>
 
-    <!-- MAIN CONTENT -->
-    <div class="content-block modern-block">
+                <p>
+                    Everything looks done. No orders runnins, you can focus one other things.
+                </p>
 
+            </div>
+        {%endif%}
 
-        <!-- BLOCK HEADER -->
-        <div class="block-header modern-block-header">
+        <!-- ========================================= -->
+        <!-- CUSTOM REQUESTS -->
+        <!-- ========================================= -->
 
-            <div>
+        <div class="content-block modern-block">
 
-                <h3>
-                    Pending Requests
-                </h3>
+            <div class="block-header modern-block-header">
 
-                <span class="sub-text">
-                    {{ customs|length if customs else 0 }} Requests Found
-                </span>
+                <div>
+
+                    <h3>Custom Requests</h3>
+
+                    <span class="sub-text">
+                        {{ customs|length if customs else 0 }} Requests Found
+                    </span>
+
+                </div>
 
             </div>
 
             {% if customs %}
-
-            <button type="submit"
-                    form="customForm"
-                    class="save-btn modern-save-btn">
-
-                <i class="fa fa-save"></i>
-                Save Changes
-
-            </button>
-
-            {% endif %}
-
-        </div>
-
-
-
-        {% if customs %}
-
-        <!-- FORM -->
-        <form method="POST"
-              action="/update-custom-status"
-              class="ajax-form"
-              id="customForm">
-
 
             <div class="table-wrapper modern-table-wrapper">
 
@@ -79,17 +149,14 @@
                     <thead>
 
                         <tr>
-
                             <th>ID</th>
                             <th>Customer</th>
                             <th>Template</th>
                             <th>Description</th>
                             <th>Status</th>
-
                         </tr>
 
                     </thead>
-
 
                     <tbody>
 
@@ -101,9 +168,7 @@
                             <td>
 
                                 <div class="request-id">
-
                                     #{{ custom.cid }}
-
                                 </div>
 
                                 <input type="hidden"
@@ -112,37 +177,27 @@
 
                             </td>
 
-
-
                             <!-- CUSTOMER -->
                             <td>
 
                                 <div class="customer-box">
 
                                     <div class="customer-avatar">
-
                                         {{ custom.name[0] if custom.name else "U" }}
-
                                     </div>
 
                                     <div class="customer-info">
 
                                         <span class="customer-name">
-
                                             {{ custom.name }}
-
                                         </span>
 
                                         <span class="customer-meta">
-
                                             {{ custom.mail }}
-
                                         </span>
 
                                         <span class="customer-meta">
-
                                             {{ custom.phone }}
-
                                         </span>
 
                                     </div>
@@ -151,35 +206,24 @@
 
                             </td>
 
-
-
                             <!-- TEMPLATE -->
                             <td>
 
                                 <span class="modern-badge">
-
                                     <i class="fa fa-palette"></i>
-
                                     {{ custom.temp }}
-
                                 </span>
 
                             </td>
-
-
 
                             <!-- DESCRIPTION -->
                             <td>
 
                                 <div class="desc-box">
-
                                     {{ custom.desc }}
-
                                 </div>
 
                             </td>
-
-
 
                             <!-- STATUS -->
                             <td>
@@ -188,30 +232,22 @@
                                         class="status-select">
 
                                     <option value="pending"
-                                        {% if custom.status == 'pending' %}
-                                        selected
-                                        {% endif %}>
+                                        {% if custom.status == 'pending' %}selected{% endif %}>
                                         Pending
                                     </option>
 
                                     <option value="processing"
-                                        {% if custom.status == 'processing' %}
-                                        selected
-                                        {% endif %}>
+                                        {% if custom.status == 'processing' %}selected{% endif %}>
                                         Processing
                                     </option>
 
                                     <option value="completed"
-                                        {% if custom.status == 'completed' %}
-                                        selected
-                                        {% endif %}>
+                                        {% if custom.status == 'completed' %}selected{% endif %}>
                                         Completed
                                     </option>
 
                                     <option value="cancelled"
-                                        {% if custom.status == 'cancelled' %}
-                                        selected
-                                        {% endif %}>
+                                        {% if custom.status == 'cancelled' %}selected{% endif %}>
                                         Cancelled
                                     </option>
 
@@ -229,33 +265,40 @@
 
             </div>
 
-        </form>
+            {% else %}
 
+            <div class="empty-state modern-empty-state">
 
-        {% else %}
+                <div class="empty-icon">
+                    <i class="fa fa-box-open"></i>
+                </div>
 
+                <h3>No Pending Requests</h3>
 
-        <!-- EMPTY STATE -->
-        <div class="empty-state modern-empty-state">
-
-            <div class="empty-icon">
-
-                <i class="fa fa-box-open"></i>
+                <p>
+                    Everything looks clean. No customization requests are waiting right now.
+                </p>
 
             </div>
 
-            <h3>
-                No Pending Requests
-            </h3>
-
-            <p>
-                Everything looks clean. No customization requests are waiting right now.
-            </p>
+            {% endif %}
 
         </div>
 
-        {% endif %}
+        <!-- SAVE BUTTON FOR BOTH TABLES -->
 
-    </div>
+        <div style="margin-top:25px;text-align:right;">
+
+            <button type="submit"
+                    class="save-btn modern-save-btn">
+
+                <i class="fa fa-save"></i>
+                Save All Changes
+
+            </button>
+
+        </div>
+
+    </form>
 
 </div>

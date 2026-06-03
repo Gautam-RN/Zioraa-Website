@@ -12,7 +12,6 @@ from db import get_db
 
 dash = Blueprint("dash", __name__)
 
-
 # =========================================================
 # HELPERS
 # =========================================================
@@ -20,20 +19,17 @@ dash = Blueprint("dash", __name__)
 def login_required():
     return 'uid' in session
 
-
 def json_error(message):
     return jsonify({
         "status": "error",
         "message": message
     })
 
-
 def json_success(message):
     return jsonify({
         "status": "success",
         "message": message
     })
-
 
 # =========================================================
 # MAIN DASHBOARD
@@ -46,7 +42,6 @@ def dashbd():
         return redirect(url_for("auth.login"))
 
     return render_template("dash.html")
-
 
 # =========================================================
 # DASHBOARD TABS
@@ -61,15 +56,14 @@ def dashboard_tab():
         revenue=rev()
     )
 
-
 @dash.route("/dash/ord-request")
 def ord_request_tab():
 
     return render_template(
         "dash/ord_request.html",
-        customs=custom()
+        customs=custom(),
+        orders=orders()
     )
-
 
 @dash.route("/dash/messages")
 def messages_tab():
@@ -79,13 +73,11 @@ def messages_tab():
         msgs=msg()
     )
 
-
 @dash.route("/dash/ord-find")
 def ord_find_tab():
 
     return render_template(
         "dash/ord_find.html",
-        orders=orders()
     )
 
 
@@ -564,6 +556,61 @@ def update_prod():
 
         db.close()
 
+@dash.route("/update-requests", methods=["POST"])
+def update_requests():
+
+    if not login_required():
+        return redirect(url_for("auth.login"))
+
+    db,cur = get_db()
+
+    # ==========================
+    # UPDATE ORDERS
+    # ==========================
+
+    order_ids = request.form.getlist("oid")
+
+    for oid in order_ids:
+
+        pay = request.form.get(f"pay_{oid}")
+        status = request.form.get(f"order_status_{oid}")
+
+        cur.execute("""
+            UPDATE orders
+            SET status=%s
+            WHERE oid=%s
+        """, (
+            status,
+            oid
+        ))
+
+        if pay!="0":
+            cur.execute("insert into transactions title,credit values('Customer pay',%s)",pay)
+    # ==========================
+    # UPDATE CUSTOM REQUESTS
+    # ==========================
+
+    custom_ids = request.form.getlist("cid")
+
+    for cid in custom_ids:
+
+        status = request.form.get(f"status_{cid}")
+
+        cur.execute("""
+            UPDATE custom
+            SET status=%s
+            WHERE cid=%s
+        """, (
+            status,
+            cid
+        ))
+
+    db.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "Changes saved successfully"
+    })
 
 @dash.route("/delete-product", methods=["POST"])
 def delete_prod():
@@ -629,6 +676,88 @@ def delete_user():
         db.close()
 
 
+@dash.route("/add-order", methods=["POST"])
+def add_order():
+
+    db, cur = get_db()
+
+    try:
+
+        name = request.form.get("customer_name")
+        email = request.form.get("customer_email")
+        phone = request.form.get("customer_phone")
+        address = request.form.get("address")
+
+        product = request.form.get("product_name")
+        price = request.form.get("price")
+        catgy = request.form.get("category")
+        status = request.form.get("status")
+        desc = request.form.get("description")
+
+        # Update existing user
+        cur.execute(
+            """
+            UPDATE users
+            SET phone=%s, address=%s, username=%s
+            WHERE email=%s
+            """,
+            (phone, address, name, email)
+        )
+
+        # Insert if not exists
+        if cur.rowcount == 0:
+            cur.execute(
+                """
+                INSERT INTO users
+                (username, email, phone, address)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (name, email, phone, address)
+            )
+
+        # Get uid
+        cur.execute(
+            "SELECT uid FROM users WHERE email=%s",
+            (email,)
+        )
+
+        uid = cur.fetchone()[0]
+
+        # Create product
+        cur.execute(
+            """
+            INSERT INTO products
+            (prodname, price, description, catgy)
+            VALUES (%s, %s, %s, %s)
+            RETURNING pid
+            """,
+            (product, price, desc, catgy)
+        )
+
+        pid = cur.fetchone()[0]
+
+        # Create order
+        cur.execute(
+            """
+            INSERT INTO orders
+            (pid, uid, price, status)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (pid, uid, price, status)
+        )
+
+        db.commit()
+
+        return json_success("Order added successfully")
+
+    except Exception as e:
+        db.rollback()
+        print(e)
+        return json_error(str(e))
+
+    finally:
+        db.close()
+
 @dash.route("/add-admin", methods=["POST"])
 def add_admin():
 
@@ -660,6 +789,7 @@ def add_admin():
     finally:
 
         db.close()
+
 
 
 @dash.route("/done-request/<email>", methods=["POST"])

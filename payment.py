@@ -19,10 +19,10 @@ Cashfree.XClientId = os.getenv("CASHFREE_APP_ID")
 Cashfree.XClientSecret = os.getenv("CASHFREE_SECRET_KEY")
 
 # Sandbox
-#Cashfree.XEnvironment = Cashfree.XSandbox
+Cashfree.XEnvironment = Cashfree.XSandbox
 
 # Production
-Cashfree.XEnvironment = Cashfree.XProduction
+#Cashfree.XEnvironment = Cashfree.XProduction
 
 x_api_version = "2023-08-01"
 

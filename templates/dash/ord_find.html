@@ -1,170 +1,305 @@
 <div class="section-wrapper">
+
+    <!-- ========================================= -->
     <!-- HEADER -->
+    <!-- ========================================= -->
+
     <div class="section-header">
+
         <div class="section-title">
-            <h2>Order Management</h2>
-            <p>Track, manage and monitor customer orders</p>
-        </div>
-    </div>
-    <!-- PENDING ORDERS -->
-    <div class="content-block">
-        <div class="block-header">
-            <h3>Pending Orders</h3>
-        </div>
-        {% if orders %}
-        <div class="table-wrapper">
-            <table>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                </tr>
-                {% for order in orders %}
-                <tr>
-                    <td>#{{order.oid}}</td>
-                    <td>{{order.name}}</td>
-                    <td>
-                        <div style=" max-width:220px; line-height:1.5; ">
-                            {{order.product}}
-                        </div>
-                    </td>
-                    <td>
-                        <span style="font-weight:700;color:#f5d27a;">
-                            ₹{{order.price}}
-                        </span>
-                    </td>
-                    <!-- PAYMENT -->
-                    <td>
-                        <input type="text"
-                               name="order_pay_{{order.oid}}"
-                               value="{{order.pay}}"
-                               style="
-                               width:100px;
-                               padding:10px 12px;
-                               background:#111;
-                               border:1px solid var(--border);
-                               border-radius:10px;
-                               color:white;
-                               ">
-                    </td>
-                    <!-- STATUS -->
-                    <td>
-                        <input type="text"
-                               name="order_status_{{order.oid}}"
-                               value="{{order.status}}"
-                               style="
-                               width:120px;
-                               padding:10px 12px;
-                               background:#111;
-                               border:1px solid var(--border);
-                               border-radius:10px;
-                               color:white;
-                               ">
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <i class="fa fa-shopping-cart"
-               style="
-               font-size:42px;
-               margin-bottom:16px;
-               opacity:.35;
-               ">
-            </i>
-            <h3 style="margin-bottom:8px;">
-                No Active Orders
-            </h3>
+
+            <h2>
+                Order Center
+            </h2>
+
             <p>
-                There are currently no running orders.
+                Manage orders, custom requests and customer activity
             </p>
+
         </div>
-        {% endif %}
+
     </div>
+
+
+
+    
+
+
+    <!-- ========================================= -->
     <!-- FIND ORDER -->
+    <!-- ========================================= -->
+
     <div class="content-block">
+
         <div class="block-header">
+
             <h3>
                 Find Order
             </h3>
+
         </div>
+
         <form action="/search-order"
-              method="POST" class="ajax-form">
+              method="POST"
+              class="ajax-form">
+
             <input type="number"
                    id="oid"
                    name="oid"
                    placeholder="Enter Order ID..."
                    required>
+
             <button type="submit">
+
                 <i class="fa fa-search"></i>
+
                 Search Order
+
             </button>
+
         </form>
+
+
+
         {% if found_order %}
+
         <div class="table-wrapper"
              style="margin-top:25px;">
+
             <table>
+
                 <tr>
-                    <th>
-                        Order ID
-                    </th>
-                    <th>
-                        Customer
-                    </th>
-                    <th>
-                        Product
-                    </th>
-                    <th>
-                        Price
-                    </th>
-                    <th>
-                        Status
-                    </th>
+
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Status</th>
+
                 </tr>
+
                 <tr>
+
                     <td>
-                        #{{found_order.oid}}
+                        #{{ found_order.oid }}
                     </td>
 
                     <td>
-                        {{found_order.name}}
+                        {{ found_order.name }}
                     </td>
 
                     <td>
-                        {{found_order.product}}
+                        {{ found_order.product }}
                     </td>
+
                     <td>
 
                         <span style="
                             font-weight:700;
                             color:#f5d27a;
                         ">
-                            ₹{{found_order.price}}
+                            ₹{{ found_order.price }}
                         </span>
+
                     </td>
+
                     <td>
+
                         {% if found_order.status == "Delivered" %}
+
                         <span class="badge badge-success">
                             Delivered
                         </span>
+
                         {% elif found_order.status == "Pending" %}
+
                         <span class="badge badge-warning">
                             Pending
                         </span>
+
                         {% else %}
+
                         <span class="badge badge-danger">
-                            {{found_order.status}}
+                            {{ found_order.status }}
                         </span>
+
                         {% endif %}
+
                     </td>
+
                 </tr>
+
             </table>
+
         </div>
+
         {% endif %}
+
     </div>
+
+
+
+    <!-- ========================================= -->
+    <!-- ADD ORDER -->
+    <!-- ========================================= -->
+
+    <div class="content-block">
+
+        <div class="block-header">
+
+            <h3>
+                Add Manual Order
+            </h3>
+
+        </div>
+
+
+        <form action="/add-order"
+              method="POST"
+              class="ajax-form product-form">
+
+            <!-- CUSTOMER INFO -->
+
+            <div class="form-section-title">
+                Customer Information
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Customer Name</label>
+
+                    <input type="text"
+                           name="customer_name"
+                           placeholder="Customer Name"
+                           required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Email</label>
+
+                    <input type="email"
+                           name="customer_email"
+                           placeholder="Email Address"
+                           required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Phone</label>
+
+                    <input type="text"
+                           name="customer_phone"
+                           placeholder="Phone Number"
+                           required>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ADDRESS -->
+
+            <div class="form-group">
+
+                <label>Shipping Address</label>
+
+                <textarea name="address"
+                          placeholder="Enter full shipping address"
+                          required></textarea>
+
+            </div>
+
+
+
+            <!-- PRODUCT INFO -->
+
+            <div class="form-section-title">
+                Product Information
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Product Name</label>
+
+                    <input type="text"
+                           name="product_name"
+                           placeholder="Product Name"
+                           required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Price</label>
+
+                    <input type="number"
+                           name="price"
+                           placeholder="0"
+                           required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Category</label>
+
+                    <input type="text"
+                           name="category"
+                           placeholder="Category">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Status</label>
+
+                    <input type="text"
+                           name="status"
+                           value="Pending">
+
+                </div>
+
+            </div>
+
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="form-group">
+
+                <label>Description</label>
+
+                <textarea name="description"
+                          placeholder="Order description"></textarea>
+
+            </div>
+
+
+
+            <button type="submit"
+                    class="submit-btn">
+
+                <i class="fa fa-plus"></i>
+
+                Add Order
+
+            </button>
+
+        </form>
+
+    </div>
+
 </div>
