@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, session
-from Versions.NEW.db import get_db
+from db import get_db
 from dotenv import load_dotenv
 
 import os

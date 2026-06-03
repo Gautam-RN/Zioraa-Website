@@ -8,7 +8,7 @@ from flask import (
     session
 )
 
-from Versions.NEW.db import get_db
+from db import get_db
 
 dash = Blueprint("dash", __name__)
 
